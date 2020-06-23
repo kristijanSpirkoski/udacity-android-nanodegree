@@ -1,0 +1,1 @@
+An API Key needs to be inserted in the NetworkUtils class, the final variable named `key`.

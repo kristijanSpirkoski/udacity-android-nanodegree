@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Movies - Stage 1</string>
+
+    <string name="most_popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
+
+
+    <string name="detail_movie_title">Original Title:</string>
+    <string name="detail_release_date">Release Date:</string>
+    <string name="detail_vote_average">Vote Average:</string>
+    <string name="detail_overview">Overview:</string>
+
+</resources>
