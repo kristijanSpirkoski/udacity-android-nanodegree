@@ -1,1 +1,1 @@
-An API Key needs to be inserted in the NetworkUtils class, the final variable named `key`.
+An API Key needs to be inserted in the NetworkUtils class, the static variable named `key`.
