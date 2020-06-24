@@ -38,10 +38,9 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        Log.i("URL", url.toString());
         return url;
     }
-    public static String getResultHTTP(URL url) throws IOException{
+    public static String getResultHTTP(URL url) throws IOException {
 
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
@@ -55,12 +54,11 @@ public class NetworkUtils {
             } else {
                 return null;
             }
-        }
-        finally{
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
             urlConnection.disconnect();
         }
-
-
+        return null;
     }
-
 }
