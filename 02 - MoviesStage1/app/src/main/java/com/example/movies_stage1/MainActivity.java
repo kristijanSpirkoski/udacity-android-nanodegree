@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             fetchingDataProgressBar.setVisibility(View.INVISIBLE);
             movieRecyclerView.setVisibility(View.VISIBLE);
 
-            if(s != null || !s.isEmpty()) {
+            if(s != null && !s.isEmpty()) {
                Movie[] movies = JSONUtils.parseJsonData(s);
                mAdapter.setMovieData(movies);
             }

@@ -22,7 +22,7 @@ public class NetworkUtils {
     private static final String LANGUAGE_PARAM = "language";
     private static final String PAGE_PARAM = "page";
 
-    private static String key = "";
+    private static String key = "d952b43015b0a1ca4ae0cbe90960cc98";
     private static String languageChoice = "en-US";
     private static int pageNumber = 1;
 
@@ -54,9 +54,10 @@ public class NetworkUtils {
             } else {
                 return null;
             }
-        } catch (Exception e) {
+        }  catch(Exception e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             urlConnection.disconnect();
         }
         return null;
