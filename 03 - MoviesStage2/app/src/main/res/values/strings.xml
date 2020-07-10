@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Movies - Stage 2</string>
+
+    <string name="most_popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="favorite">Favorite</string>
+
+
+    <string name="detail_reviews_label">REVIEWS</string>
+    <string name="detail_trailers_label">Trailers</string>
+
+    <string name="detail_overview_default">wakdhkuahwkduhawdkuawhdkuahwdkuawdkdhakwuaukdhawdkawuakdhakuwdhauwhdkuawhdkauwkwakkkkwhduawhdkawdukawhdkuwadkahwdhawkduhakwdh</string>
+    <string name="detail_release_date_default">12/05/2017</string>
+    <string name="detail_vote_avg_default">5.6/10</string>
+    <string name="detail_title_default">Harry Potter: The Prisoner of Azkaban</string>
+    <string name="trailer_name_default">The Lost and the Stupid</string>
+    <string name="review_author_name_default">Hunter S. Thompson</string>
+    <string name="review_content_default">I fondly recollect, growing up in Canada in the 70s and 80s, my mom taking my older sister and I to the cinema (my dad was more interested in watching bowling, hockey, or either crime shows, British sitcoms or hockey on TV). Despite all of his TV appearances over the years, and films he acted in to fund his own productions, the first time I was aware of Orson Welles was one of those startling and bizarrely professional yet unmistakably charismatic Paul Masson wine commercials that they tend to make fun of on The Simpsons in these decades gone by.</string>
+
+
+
+</resources>

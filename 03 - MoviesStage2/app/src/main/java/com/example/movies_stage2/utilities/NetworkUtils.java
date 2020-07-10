@@ -1,4 +1,4 @@
-package com.example.movies_stage1.utilities;
+package com.example.movies_stage2.utilities;
 
 import android.net.Uri;
 import android.util.Log;
@@ -13,7 +13,7 @@ import java.util.Scanner;
 public class NetworkUtils {
 
     public static String MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie";
-    public static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/original";
+    public static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/w185";
     public static String TOP_RATED_SEARCH_TYPE = "/top_rated";
     public static String POPULAR_SEARCH_TYPE = "/popular";
 
@@ -26,12 +26,28 @@ public class NetworkUtils {
     private static String languageChoice = "en-US";
     private static int pageNumber = 1;
 
-    public static URL buildUrl(String searchType) {
+    public static URL buildMovieUrl(String searchType) {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL + searchType).buildUpon()
                 .appendQueryParameter(API_PARAM, key)
                 .appendQueryParameter(LANGUAGE_PARAM, languageChoice)
                 .appendQueryParameter(PAGE_PARAM, String.valueOf(pageNumber))
                 .build();
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+    public static URL buildMovieDetailUrl(int movieId, String movieDetail) {
+        Uri builtUri = Uri.parse(MOVIES_BASE_URL + "/" + String.valueOf(movieId) + "/" + movieDetail)
+                .buildUpon()
+                .appendQueryParameter(API_PARAM, key)
+                .appendQueryParameter(LANGUAGE_PARAM, languageChoice)
+                .appendQueryParameter(PAGE_PARAM, String.valueOf(pageNumber))
+                .build();
+
         URL url = null;
         try {
             url = new URL(builtUri.toString());
