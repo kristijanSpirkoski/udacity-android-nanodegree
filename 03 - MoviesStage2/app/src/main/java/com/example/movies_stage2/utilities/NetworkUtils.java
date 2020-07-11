@@ -22,13 +22,13 @@ public class NetworkUtils {
     private static final String LANGUAGE_PARAM = "language";
     private static final String PAGE_PARAM = "page";
 
-    private static String key = "";
+    private static String MOVIE_DB_API_KEY = "";
     private static String languageChoice = "en-US";
     private static int pageNumber = 1;
 
     public static URL buildMovieUrl(String searchType) {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL + searchType).buildUpon()
-                .appendQueryParameter(API_PARAM, key)
+                .appendQueryParameter(API_PARAM, MOVIE_DB_API_KEY)
                 .appendQueryParameter(LANGUAGE_PARAM, languageChoice)
                 .appendQueryParameter(PAGE_PARAM, String.valueOf(pageNumber))
                 .build();
@@ -43,7 +43,7 @@ public class NetworkUtils {
     public static URL buildMovieDetailUrl(int movieId, String movieDetail) {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL + "/" + String.valueOf(movieId) + "/" + movieDetail)
                 .buildUpon()
-                .appendQueryParameter(API_PARAM, key)
+                .appendQueryParameter(API_PARAM, MOVIE_DB_API_KEY)
                 .appendQueryParameter(LANGUAGE_PARAM, languageChoice)
                 .appendQueryParameter(PAGE_PARAM, String.valueOf(pageNumber))
                 .build();
