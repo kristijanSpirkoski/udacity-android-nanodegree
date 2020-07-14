@@ -17,7 +17,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private static int NETWORK_MOVIE_SEARCH_LOADER_ID = 24;
     public static String LOADER_SEARCH_TYPE_KEY = "search-key";
+    public static String SAVED_INSTANCE_SEARCH_TYPE_KEY = "search_key";
 
     private final int NUM_OF_COLUMNS = 2;
 
@@ -49,6 +52,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private AppDatabase database;
 
     private ActionBar actionBar;
+
+    private static String DISPLAY_TYPE_KEY = "display_type";
+    private static String DISPLAY_FAVORITE = "favorite";
+    private static String DISPLAY_POPULAR = NetworkUtils.POPULAR_SEARCH_TYPE;
+    private static String DISPLAY_TOP_RATED = NetworkUtils.TOP_RATED_SEARCH_TYPE;
+
+    private static String displayType = DISPLAY_FAVORITE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +78,29 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mAdapter = new MovieAdapter(this);
         movieRecyclerView.setAdapter(mAdapter);
 
-        loadMovieData(NetworkUtils.POPULAR_SEARCH_TYPE);
+        if(savedInstanceState != null) {
+            Log.i("display_type2", displayType);
+            displayType = savedInstanceState.getString(DISPLAY_TYPE_KEY);
+            if(displayType.equals(DISPLAY_FAVORITE)) {
+                loadFavoriteMovies();
+            } else {
+                loadMovieData(displayType);
+            }
+        } else {
+            loadFavoriteMovies();
+        }
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        Log.d("display_type", displayType);
+        outState.putString(DISPLAY_TYPE_KEY, displayType);
+        super.onSaveInstanceState(outState);
+    }
+
     public void loadMovieData(String searchType) {
+
+        displayType = searchType;
 
         if(searchType.equals(NetworkUtils.POPULAR_SEARCH_TYPE)) {
         } else if(searchType.equals(NetworkUtils.TOP_RATED_SEARCH_TYPE)) {
@@ -169,6 +199,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
     }
     public void loadFavoriteMovies() {
+
+        displayType = DISPLAY_FAVORITE;
+
         MainViewModelFactory factory = new MainViewModelFactory(getApplication());
         MainViewModel viewModel = new ViewModelProvider(this, factory).get(MainViewModel.class);
         LiveData<Movie[]> favoriteMovies = viewModel.getMovies();

@@ -13,7 +13,7 @@ import java.util.Scanner;
 public class NetworkUtils {
 
     public static String MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie";
-    public static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/w185";
+    public static String IMAGES_BASE_URL = "https://image.tmdb.org/t/p/w185";
     public static String TOP_RATED_SEARCH_TYPE = "/top_rated";
     public static String POPULAR_SEARCH_TYPE = "/popular";
 
@@ -22,7 +22,7 @@ public class NetworkUtils {
     private static final String LANGUAGE_PARAM = "language";
     private static final String PAGE_PARAM = "page";
 
-    private static String MOVIE_DB_API_KEY = "";
+    private static String MOVIE_DB_API_KEY = "d952b43015b0a1ca4ae0cbe90960cc98";
     private static String languageChoice = "en-US";
     private static int pageNumber = 1;
 
