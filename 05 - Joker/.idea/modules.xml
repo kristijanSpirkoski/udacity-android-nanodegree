@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/05_-_Joker.iml" filepath="$PROJECT_DIR$/.idea/modules/05_-_Joker.iml" group="05_-_Joker" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="05 - Joker/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/backend/backend.iml" filepath="$PROJECT_DIR$/.idea/modules/backend/backend.iml" group="05 - Joker/backend" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/libjokedisplayer/libjokedisplayer.iml" filepath="$PROJECT_DIR$/.idea/modules/libjokedisplayer/libjokedisplayer.iml" group="05 - Joker/libjokedisplayer" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/libjokeprovider/libjokeprovider.iml" filepath="$PROJECT_DIR$/.idea/modules/libjokeprovider/libjokeprovider.iml" group="05 - Joker/libjokeprovider" />
+    </modules>
+  </component>
+</project>

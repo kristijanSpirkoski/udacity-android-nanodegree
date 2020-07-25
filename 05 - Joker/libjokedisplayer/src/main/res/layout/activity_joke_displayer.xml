@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".JokeDisplayerActivity">
+
+
+
+    <TextView
+        android:id="@+id/joke"
+        style="@style/TextAppearance.AppCompat.Display2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="200dp"
+        android:layout_marginBottom="35dp"
+        android:textColor="#55185D"
+        tools:text="@string/joke_default"
+        />
+    <TextView
+        android:id="@+id/joke_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/joke_label"
+        android:layout_gravity="center"
+        android:textColor="#ECB602"
+        style="@style/TextAppearance.AppCompat.Caption"
+        />
+</LinearLayout>
