@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/06_-_Xyz_Reader.iml" filepath="$PROJECT_DIR$/.idea/modules/06_-_Xyz_Reader.iml" group="06_-_Xyz_Reader" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/XYZReader/XYZReader.iml" filepath="$PROJECT_DIR$/.idea/modules/XYZReader/XYZReader.iml" group="06 - Xyz Reader/XYZReader" />
+    </modules>
+  </component>
+</project>
