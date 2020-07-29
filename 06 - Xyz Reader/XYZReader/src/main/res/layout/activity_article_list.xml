@@ -31,10 +31,9 @@
                 android:src="@drawable/logo"
                 android:contentDescription="@string/app_name"
                 android:layout_gravity="bottom"
+                android:layout_marginStart="@dimen/margin_line_2"
                 />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -53,9 +52,6 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     android:scrollbarStyle="outsideOverlay"
-                    android:paddingTop="116dp"
-                    android:paddingLeft="@dimen/list_side_margin"
-                    android:paddingRight="@dimen/list_side_margin"
                     android:paddingBottom="28dp" />
 
         </androidx.core.widget.NestedScrollView>
