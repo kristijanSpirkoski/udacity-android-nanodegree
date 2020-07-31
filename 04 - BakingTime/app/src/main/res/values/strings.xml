@@ -14,5 +14,12 @@
 5 1/3 tablespoons (74g) butter, melted
 1/8 teaspoon salt</string>
 
+    <string name="pause">Pause</string>
+    <string name="play">Play</string>
+    <string name="restart">Restart</string>
+
+    <string name="notification_title">Step:</string>
+    <string name="notification_text"></string>
+
 
 </resources>
