@@ -1,0 +1,33 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/widget_layout"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorAccent"
+    android:padding="@dimen/widget_margin">
+
+
+    <TextView
+        android:id="@+id/widget_recipe_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Nutella Creampie Ingredients"
+        android:gravity="center"
+        android:layout_margin="16dp"
+        android:padding="8dp"
+        android:textSize="16sp"
+        style="@style/TextAppearance.AppCompat.Display1"
+        android:textStyle="bold" />
+
+
+    <TextView
+        android:id="@+id/widget_ingredients"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_below="@id/widget_recipe_name"
+        tools:text="\u2022  Picku\n\u2022  Materin"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:textSize="12sp" />
+
+</RelativeLayout>

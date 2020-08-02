@@ -1,6 +1,5 @@
 package com.example.bakingtime.ui;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -14,11 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.example.bakingtime.R;
@@ -41,6 +43,8 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -55,11 +59,14 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     private PlaybackStateCompat.Builder mStateBuilder;
     private SimpleExoPlayer exoPlayer;
     private SimpleExoPlayerView exoPlayerView;
-    private NotificationManager mNotificationManager;
 
 
+    private TextView mErrorView;
     private ImageView placeHolder;
+    private TextView mDescriptionView;
 
+    private ImageView backButton;
+    private ImageView forwardButton;
 
 
     public StepDetailFragment(int recipeId, int stepId) {
@@ -75,6 +82,10 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
         exoPlayerView = viewRoot.findViewById(R.id.step_exo_player);
         placeHolder = viewRoot.findViewById(R.id.video_placeholder);
+        mDescriptionView = viewRoot.findViewById(R.id.step_description);
+        mErrorView = viewRoot.findViewById(R.id.video_unavailable_label);
+        backButton = viewRoot.findViewById(R.id.back_button);
+        forwardButton = viewRoot.findViewById(R.id.forward_button);
 
 
 
@@ -82,36 +93,60 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             @Override
             public void run() {
                 Recipe recipe = AppDatabase.getInstance(getActivity()).recipeDao().getRecipeById(recipeId);
+                int i = 0;
                 for (Step s : recipe.getSteps()) {
                     if (s.getId() == stepId) {
                         mStep = s;
                         break;
                     }
+                    i++;
                 }
+                final int stepArrayIndex = i;
+
+                backButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        int nextStepIdx = stepArrayIndex+1;
+                        if(nextStepIdx < recipe.getSteps().size()) {
+
+                        } else {
+                            Toast.makeText(getActivity(), "No more steps", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                forwardButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        int previousStepIdx = stepArrayIndex-1;
+                        Intent intent = new Intent()
+                        } else {
+                            Toast.makeText(getActivity(), "No previours steps", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
                 String videoUrl = mStep.getVideoURL();
                 String thumbnailUrl = mStep.getThumbnailURL();
 
-                if( isUrlValid(videoUrl) ) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                        mDescriptionView.setText(mStep.getDescription());
+
+                        if(isUrlValid(videoUrl)) {
                             placeHolder.setVisibility(View.INVISIBLE);
+                            mErrorView.setVisibility(View.INVISIBLE);
 
                             initializeMediaSession();
                             initializePlayer(Uri.parse(videoUrl));
-                        }
-                    });
-                } else {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                        } else {
                             exoPlayerView.setVisibility(View.GONE);
                             placeHolder.setVisibility(View.VISIBLE);
+                            mErrorView.setVisibility(View.VISIBLE);
                         }
-                    });
-                }
+                    }
+                });
             }
         });
 
@@ -121,8 +156,11 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
     @Override
     public void onDestroyView() {
+        if(mMediaSession != null) {
+            releasePlayer();
+            mMediaSession.setActive(false);
+        }
         super.onDestroyView();
-        mMediaSession.setActive(false);
     }
 
     private void initializeMediaSession() {
@@ -168,54 +206,8 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         }
     }
 
-    private void showNotification(PlaybackStateCompat state) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity());
-
-        int icon;
-        String play_pause;
-        if(state.getState() == PlaybackStateCompat.STATE_PLAYING) {
-            icon = R.drawable.exo_controls_pause;
-            play_pause = getString(R.string.pause);
-        } else {
-            icon = R.drawable.exo_controls_play;
-            play_pause = getString(R.string.play);
-        }
-
-        NotificationCompat.Action playPauseAction = new NotificationCompat.Action(icon, play_pause,
-                MediaButtonReceiver.buildMediaButtonPendingIntent(getActivity(),
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE));
-
-        NotificationCompat.Action restartAction = new NotificationCompat
-                .Action(R.drawable.exo_controls_previous, getString(R.string.restart),
-                MediaButtonReceiver.buildMediaButtonPendingIntent(getActivity(),
-                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
-
-        PendingIntent contentPendingIntent = PendingIntent.getActivity(getActivity(), 0,
-                new Intent(getActivity(), StepActivity.class), 0);
-
-        builder.setContentTitle(getString(R.string.notification_title))
-                .setContentText(mStep.getShortDescription())
-                .setContentIntent(contentPendingIntent)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .addAction(restartAction)
-                .addAction(playPauseAction)
-                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                    .setMediaSession(mMediaSession.getSessionToken())
-                    .setShowActionsInCompactView(0,1));
-
-        mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, builder.build());
-
-    }
-    @Override
-    public void onPause() {
-        super.onPause();
-        releasePlayer();
-    }
-
     private void releasePlayer() {
         if (exoPlayer != null) {
-            mNotificationManager.cancelAll();
             exoPlayer.stop();
             exoPlayer.release();
             exoPlayer = null;

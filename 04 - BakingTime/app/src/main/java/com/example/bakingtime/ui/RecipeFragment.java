@@ -70,7 +70,7 @@ public class RecipeFragment extends Fragment {
                     public void run() {
                         StringBuilder ingredientText = new StringBuilder("");
                         for(Ingredient i : activityRecipe.getIngredients()) {
-                            ingredientText.append(i.getQuantity() +
+                            ingredientText.append("\u2022  " + i.getQuantity() +
                                     ( !i.getMeasure().equals("UNIT") ? i.getMeasure() : "" ) +
                                     " " + i.getIngredient() + "\n");
                         }

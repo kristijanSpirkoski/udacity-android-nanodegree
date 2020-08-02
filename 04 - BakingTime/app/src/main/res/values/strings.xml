@@ -19,7 +19,12 @@
     <string name="restart">Restart</string>
 
     <string name="notification_title">Step:</string>
-    <string name="notification_text"></string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+
+    <string name="add_as_widget">Add as widget</string>
+
+    <string name="video_unavailable">Video Unavailable</string>
 
 
 </resources>

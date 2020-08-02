@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:title="@string/add_as_widget"
+        android:id="@+id/add_widget_menu_item">
+    </item>
+</menu>
