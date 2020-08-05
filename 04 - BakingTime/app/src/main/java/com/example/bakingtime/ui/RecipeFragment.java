@@ -28,14 +28,14 @@ public class RecipeFragment extends Fragment {
     private TextView ingredientView;
     private RecyclerView recyclerView;
 
-    private Recipe activityRecipe;
-    private int activityRecipeId;
+    private Recipe mRecipe;
 
     private DetailListAdapter mAdapter;
     private Context activityContext;
 
-    public RecipeFragment(int id) {
-        this.activityRecipeId = id;
+    public RecipeFragment(Recipe recipe) {
+        this.mRecipe = recipe;
+        setRetainInstance(true);
     }
 
     @Override
@@ -59,28 +59,16 @@ public class RecipeFragment extends Fragment {
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(layoutManager);
 
-        AppDatabase mDb = AppDatabase.getInstance(getActivity());
-        AppExecutors.getInstance().getDiskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                activityRecipe = mDb.recipeDao().getRecipeById(activityRecipeId);
+        StringBuilder ingredientText = new StringBuilder("");
+        for(Ingredient i : mRecipe.getIngredients()) {
+            ingredientText.append("\u2022  " + i.getQuantity() +
+                    ( !i.getMeasure().equals("UNIT") ? i.getMeasure() : "" ) +
+                    " " + i.getIngredient() + "\n");
+        }
+        ingredientView.setText(ingredientText);
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        StringBuilder ingredientText = new StringBuilder("");
-                        for(Ingredient i : activityRecipe.getIngredients()) {
-                            ingredientText.append("\u2022  " + i.getQuantity() +
-                                    ( !i.getMeasure().equals("UNIT") ? i.getMeasure() : "" ) +
-                                    " " + i.getIngredient() + "\n");
-                        }
-                        ingredientView.setText(ingredientText);
+        mAdapter.setStepData(mRecipe.getSteps());
 
-                        mAdapter.setStepData(activityRecipe.getSteps());
-                    }
-                });
-            }
-        });
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 }

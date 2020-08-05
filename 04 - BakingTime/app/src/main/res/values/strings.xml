@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">Baking Time</string>
 
     <string name="recipe_item_name_default">Strawberry Cheese Cake</string>
@@ -25,6 +26,7 @@
     <string name="add_as_widget">Add as widget</string>
 
     <string name="video_unavailable">Video Unavailable</string>
+
 
 
 </resources>

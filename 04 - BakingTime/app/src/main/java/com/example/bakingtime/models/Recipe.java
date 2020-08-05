@@ -3,10 +3,11 @@ package com.example.bakingtime.models;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 @Entity(tableName = "recipes")
-public class Recipe {
+public class Recipe{
 
     @PrimaryKey(autoGenerate = false)
     private int id;

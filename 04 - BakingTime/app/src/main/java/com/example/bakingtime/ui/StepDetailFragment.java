@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.media.session.MediaButtonReceiver;
 
+import com.bumptech.glide.Glide;
 import com.example.bakingtime.R;
 import com.example.bakingtime.database.AppDatabase;
 import com.example.bakingtime.models.Recipe;
@@ -51,9 +52,8 @@ import java.net.URL;
 
 public class StepDetailFragment extends Fragment implements ExoPlayer.EventListener{
 
-    private int recipeId;
-    private int stepId;
     private Step mStep;
+    private Recipe mRecipe;
 
     private MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
@@ -65,18 +65,20 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     private ImageView placeHolder;
     private TextView mDescriptionView;
 
-    private ImageView backButton;
-    private ImageView forwardButton;
 
+    public StepDetailFragment() {}
 
-    public StepDetailFragment(int recipeId, int stepId) {
-        this.recipeId = recipeId;
-        this.stepId = stepId;
+    public StepDetailFragment(Recipe recipe, Step step) {
+
+        this.mRecipe = recipe;
+        this.mStep = step;
+        setRetainInstance(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
 
         final View viewRoot = inflater.inflate(R.layout.fragment_step_detail, container);
 
@@ -84,72 +86,25 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         placeHolder = viewRoot.findViewById(R.id.video_placeholder);
         mDescriptionView = viewRoot.findViewById(R.id.step_description);
         mErrorView = viewRoot.findViewById(R.id.video_unavailable_label);
-        backButton = viewRoot.findViewById(R.id.back_button);
-        forwardButton = viewRoot.findViewById(R.id.forward_button);
 
 
+        String videoUrl = mStep.getVideoURL();
+        String thumbnailUrl = mStep.getThumbnailURL();
 
-        AppExecutors.getInstance().getDiskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                Recipe recipe = AppDatabase.getInstance(getActivity()).recipeDao().getRecipeById(recipeId);
-                int i = 0;
-                for (Step s : recipe.getSteps()) {
-                    if (s.getId() == stepId) {
-                        mStep = s;
-                        break;
-                    }
-                    i++;
-                }
-                final int stepArrayIndex = i;
 
-                backButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        int nextStepIdx = stepArrayIndex+1;
-                        if(nextStepIdx < recipe.getSteps().size()) {
+        mDescriptionView.setText(mStep.getDescription());
 
-                        } else {
-                            Toast.makeText(getActivity(), "No more steps", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                forwardButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        int previousStepIdx = stepArrayIndex-1;
-                        Intent intent = new Intent()
-                        } else {
-                            Toast.makeText(getActivity(), "No previours steps", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        if(isUrlValid(videoUrl)) {
+            placeHolder.setVisibility(View.INVISIBLE);
+            mErrorView.setVisibility(View.INVISIBLE);
 
-                String videoUrl = mStep.getVideoURL();
-                String thumbnailUrl = mStep.getThumbnailURL();
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        mDescriptionView.setText(mStep.getDescription());
-
-                        if(isUrlValid(videoUrl)) {
-                            placeHolder.setVisibility(View.INVISIBLE);
-                            mErrorView.setVisibility(View.INVISIBLE);
-
-                            initializeMediaSession();
-                            initializePlayer(Uri.parse(videoUrl));
-                        } else {
-                            exoPlayerView.setVisibility(View.GONE);
-                            placeHolder.setVisibility(View.VISIBLE);
-                            mErrorView.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-            }
-        });
-
+            initializeMediaSession();
+            initializePlayer(Uri.parse(videoUrl));
+        } else {
+            exoPlayerView.setVisibility(View.GONE);
+            placeHolder.setVisibility(View.VISIBLE);
+            mErrorView.setVisibility(View.VISIBLE);
+        }
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -159,6 +114,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         if(mMediaSession != null) {
             releasePlayer();
             mMediaSession.setActive(false);
+            mMediaSession = null;
         }
         super.onDestroyView();
     }
@@ -246,6 +202,31 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         mMediaSession.setPlaybackState(mStateBuilder.build());
     }
 
+    public void updateVideoUrl(Uri mediaUri) {
+
+        if(isUrlValid(mediaUri.toString())) {
+            exoPlayerView.setVisibility(View.VISIBLE);
+            placeHolder.setVisibility(View.INVISIBLE);
+            mErrorView.setVisibility(View.INVISIBLE);
+
+
+            String userAgent = Util.getUserAgent(getActivity(), "BakingTime");
+            MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(getActivity(),
+                    userAgent), new DefaultExtractorsFactory(), null, null);
+            exoPlayer.prepare(mediaSource);
+            exoPlayer.setPlayWhenReady(true);
+
+        } else {
+            exoPlayerView.setVisibility(View.GONE);
+            placeHolder.setVisibility(View.VISIBLE);
+            mErrorView.setVisibility(View.VISIBLE);
+        }
+
+
+    }
+    public void updateStepDescription(String newDesc) {
+        mDescriptionView.setText(newDesc);
+    }
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
 
         @Override
@@ -263,4 +244,5 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             exoPlayer.seekTo(0);
         }
     }
+
 }

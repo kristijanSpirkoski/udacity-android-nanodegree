@@ -12,6 +12,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,8 +51,9 @@ public class MasterListFragment extends Fragment {
 
         final View rootView = inflater.inflate(R.layout.fragment_master_list, container);
 
+        boolean isTablet = getResources().getBoolean(R.bool.isTablet);
+
         RecyclerView recyclerView = rootView.findViewById(R.id.recipe_card_recycler_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(activityContext);
         mAdapter = new MasterListAdapter(activityContext);
 
         AppDatabase mDb = AppDatabase.getInstance(activityContext);
@@ -60,7 +62,14 @@ public class MasterListFragment extends Fragment {
         boolean isDbEmpty = sharedPreferences.getBoolean(DATABASE_EMPTY_KEY, true);
 
         recyclerView.setAdapter(mAdapter);
-        recyclerView.setLayoutManager(layoutManager);
+
+        if(isTablet) {
+            GridLayoutManager layoutManager = new GridLayoutManager(activityContext, 2);
+            recyclerView.setLayoutManager(layoutManager);
+        } else {
+            LinearLayoutManager layoutManager = new LinearLayoutManager(activityContext);
+            recyclerView.setLayoutManager(layoutManager);
+        }
 
         if(isDbEmpty) {
 

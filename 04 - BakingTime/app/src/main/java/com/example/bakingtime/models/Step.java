@@ -1,6 +1,8 @@
 package com.example.bakingtime.models;
 
-public class Step {
+import java.io.Serializable;
+
+public class Step{
 
     private int id;
     private String description;

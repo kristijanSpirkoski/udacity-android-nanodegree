@@ -6,12 +6,19 @@ import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.bakingtime.R;
+import com.example.bakingtime.database.AppDatabase;
+import com.example.bakingtime.models.Recipe;
+import com.example.bakingtime.models.Step;
+import com.example.bakingtime.utils.AppExecutors;
 import com.example.bakingtime.widget.RecipeService;
 import com.example.bakingtime.widget.RecipeWidgetProvider;
 
@@ -20,6 +27,7 @@ public class RecipeDetailActivity extends AppCompatActivity implements DetailLis
 
     public final static String EXTRA_STEP_ID_KEY = "extra_recipe_id";
     public final static String RECIPE_WIDGET_ID_KEY = "recipe_widget";
+    private Recipe mRecipe;
     private int recipeId;
 
     @Override
@@ -31,20 +39,60 @@ public class RecipeDetailActivity extends AppCompatActivity implements DetailLis
         recipeId = intent.getIntExtra(MainActivity.EXTRA_RECIPE_ID_KEY, 0);
 
 
-        RecipeFragment fragment = new RecipeFragment(recipeId);
-        FragmentManager manager = getSupportFragmentManager();
+        AppDatabase mDb = AppDatabase.getInstance(this);
+        AppExecutors.getInstance().getDiskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mRecipe = mDb.recipeDao().getRecipeById(recipeId);
 
-        manager.beginTransaction()
-                .add(R.id.recipe_step_fragment_container, fragment)
-                .commit();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        RecipeFragment fragment = new RecipeFragment(mRecipe);
+                        FragmentManager manager = getSupportFragmentManager();
+
+                        manager.beginTransaction()
+                                .add(R.id.recipe_step_fragment_container, fragment)
+                                .commit();
+
+                        boolean isTablet = getResources().getBoolean(R.bool.isTablet);
+                        if(isTablet && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            StepDetailFragment detailFragment = new StepDetailFragment(mRecipe, mRecipe.getSteps().get(0));
+                            manager.beginTransaction()
+                                    .add(R.id.step_detail_container, detailFragment)
+                                    .commit();
+                        }
+                    }
+                });
+            }
+        });
+
+
+
     }
 
     @Override
     public void onStepClicked(int stepId) {
-        Intent stepInstructionsIntent = new Intent(this, StepActivity.class);
-        stepInstructionsIntent.putExtra(EXTRA_STEP_ID_KEY, stepId);
-        stepInstructionsIntent.putExtra(MainActivity.EXTRA_RECIPE_ID_KEY, recipeId);
-        startActivity(stepInstructionsIntent);
+
+        boolean isTablet = getResources().getBoolean(R.bool.isTablet);
+
+        if(isTablet && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            for(Step s : mRecipe.getSteps()) {
+                if(s.getId() == stepId) {
+
+                    FragmentManager manager = getSupportFragmentManager();
+
+                    StepDetailFragment fragment = (StepDetailFragment) manager.findFragmentById(R.id.step_detail_container);
+                    fragment.updateVideoUrl(Uri.parse(s.getVideoURL()));
+                    break;
+                }
+            }
+        } else {
+            Intent stepInstructionsIntent = new Intent(this, StepActivity.class);
+            stepInstructionsIntent.putExtra(EXTRA_STEP_ID_KEY, stepId);
+            stepInstructionsIntent.putExtra(MainActivity.EXTRA_RECIPE_ID_KEY, recipeId);
+            startActivity(stepInstructionsIntent);
+        }
     }
 
     @Override
