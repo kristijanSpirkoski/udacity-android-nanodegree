@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "628564203514",
+    "firebase_url": "https://dough-1b925.firebaseio.com",
+    "project_id": "dough-1b925",
+    "storage_bucket": "dough-1b925.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628564203514:android:16aaddf10d2f2e9bf77643",
+        "android_client_info": {
+          "package_name": "com.example.dough"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "628564203514-1ka39m40ihtlhqctici4dj2jguldlr0d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dough",
+            "certificate_hash": "0d33dd8c74209f1703f5d44ef027d29927f73258"
+          }
+        },
+        {
+          "client_id": "628564203514-62ebh1hi22tlbmm5r4tuhl48levnhbui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6iGRIG8xjfayM_q06nnM6P2_Y--tS_Lc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "628564203514-62ebh1hi22tlbmm5r4tuhl48levnhbui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

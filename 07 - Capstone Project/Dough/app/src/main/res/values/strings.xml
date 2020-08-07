@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Dough</string>
+
+    <string name="balance_label">Balance</string>
+
+    <string name="sign_out">Sign out</string>
+</resources>
