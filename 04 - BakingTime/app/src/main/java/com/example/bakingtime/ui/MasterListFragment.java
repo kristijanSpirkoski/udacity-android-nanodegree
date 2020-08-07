@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -35,6 +36,8 @@ public class MasterListFragment extends Fragment {
     private MasterListAdapter mAdapter;
     private Context activityContext;
 
+
+
     public MasterListFragment() {
 
     }
@@ -50,6 +53,7 @@ public class MasterListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.fragment_master_list, container);
+
 
         boolean isTablet = getResources().getBoolean(R.bool.isTablet);
 

@@ -203,7 +203,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     }
 
     public void updateVideoUrl(Uri mediaUri) {
-
+        exoPlayer.setPlayWhenReady(false);
         if(isUrlValid(mediaUri.toString())) {
             exoPlayerView.setVisibility(View.VISIBLE);
             placeHolder.setVisibility(View.INVISIBLE);

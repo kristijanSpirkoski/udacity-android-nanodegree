@@ -15,6 +15,8 @@ import com.example.bakingtime.R;
 import com.example.bakingtime.models.Recipe;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -49,12 +51,24 @@ public class MasterListAdapter extends RecyclerView.Adapter<MasterListAdapter.Re
         Recipe recipe = recipes.get(position);
 
         holder.recipeName.setText(recipe.getName());
+        holder.servingsView.append(" " + recipe.getServings());
+        String difficulty = null;
+        int numberOfSteps = recipe.getSteps().size();
+        if(numberOfSteps < 4) {
+            difficulty = "Easy";
+        } else if(numberOfSteps >=4 && numberOfSteps < 8) {
+            difficulty = "Medium";
+        } else {
+            difficulty = "Hard";
+        }
+        holder.difficultyView.append(" " + difficulty);
 
         String imageURL = recipe.getImage();
         try {
             new URL(imageURL).toURI();
             Picasso.get().load(imageURL).into(holder.recipeImage);
         } catch(MalformedURLException | URISyntaxException e) {
+            holder.errorView.setVisibility(View.VISIBLE);
             Log.i("Exception: ", "ImageUrl invalid");
         }
 
@@ -78,12 +92,18 @@ public class MasterListAdapter extends RecyclerView.Adapter<MasterListAdapter.Re
 
         private ImageView recipeImage;
         private TextView recipeName;
+        private TextView servingsView;
+        private TextView difficultyView;
+        private TextView errorView;
 
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
 
             recipeImage = itemView.findViewById(R.id.recipe_item_image);
             recipeName = itemView.findViewById(R.id.recipe_item_name);
+            servingsView = itemView.findViewById(R.id.recipe_item_servings_label);
+            difficultyView = itemView.findViewById(R.id.recipe_item_difficulty_label);
+            errorView = itemView.findViewById(R.id.image_unavailable_label);
 
             itemView.setOnClickListener(this);
         }

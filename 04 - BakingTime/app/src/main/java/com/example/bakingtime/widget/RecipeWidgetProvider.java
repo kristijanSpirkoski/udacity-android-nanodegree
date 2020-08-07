@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.widget.RemoteViews;
 
 import com.example.bakingtime.R;
@@ -28,7 +29,9 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
                                 int appWidgetId, Recipe recipe) {
 
         Intent intent = new Intent(context, RecipeDetailActivity.class);
-        intent.putExtra(MainActivity.EXTRA_RECIPE_ID_KEY, recipe.getId());
+        Bundle bundle = new Bundle();
+        bundle.putInt(MainActivity.EXTRA_RECIPE_ID_KEY, recipe.getId());
+        intent.putExtras(bundle);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_widget_provider);

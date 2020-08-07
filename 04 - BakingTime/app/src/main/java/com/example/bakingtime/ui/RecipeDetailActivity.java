@@ -1,6 +1,7 @@
 package com.example.bakingtime.ui;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
@@ -25,6 +26,7 @@ import com.example.bakingtime.widget.RecipeWidgetProvider;
 public class RecipeDetailActivity extends AppCompatActivity implements DetailListAdapter.OnStepClickedListener{
 
 
+
     public final static String EXTRA_STEP_ID_KEY = "extra_recipe_id";
     public final static String RECIPE_WIDGET_ID_KEY = "recipe_widget";
     private Recipe mRecipe;
@@ -36,7 +38,10 @@ public class RecipeDetailActivity extends AppCompatActivity implements DetailLis
         setContentView(R.layout.activity_recipe_detail);
 
         Intent intent = getIntent();
-        recipeId = intent.getIntExtra(MainActivity.EXTRA_RECIPE_ID_KEY, 0);
+        Bundle bundle = intent.getExtras();
+        recipeId = bundle.getInt(MainActivity.EXTRA_RECIPE_ID_KEY, 0);
+
+        Log.i("IDLETAG", "here");
 
 
         AppDatabase mDb = AppDatabase.getInstance(this);
@@ -44,10 +49,12 @@ public class RecipeDetailActivity extends AppCompatActivity implements DetailLis
             @Override
             public void run() {
                 mRecipe = mDb.recipeDao().getRecipeById(recipeId);
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        getSupportActionBar().setTitle(mRecipe.getName() + " Recipe");
+
                         RecipeFragment fragment = new RecipeFragment(mRecipe);
                         FragmentManager manager = getSupportFragmentManager();
 
@@ -84,6 +91,7 @@ public class RecipeDetailActivity extends AppCompatActivity implements DetailLis
 
                     StepDetailFragment fragment = (StepDetailFragment) manager.findFragmentById(R.id.step_detail_container);
                     fragment.updateVideoUrl(Uri.parse(s.getVideoURL()));
+                    fragment.updateStepDescription(s.getDescription());
                     break;
                 }
             }
@@ -118,4 +126,5 @@ public class RecipeDetailActivity extends AppCompatActivity implements DetailLis
         }
         return super.onOptionsItemSelected(item);
     }
+
 }

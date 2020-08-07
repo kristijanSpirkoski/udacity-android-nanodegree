@@ -58,6 +58,8 @@ public class StepActivity extends AppCompatActivity {
                 mRecipe = viewModel.getRecipe();
                 mStep = viewModel.getStep();
 
+                getSupportActionBar().setTitle(mStep.getShortDescription());
+
                 ArrayList<Step> steps = mRecipe.getSteps();
                 for(int i=0; i< steps.size(); i++) {
                     if(steps.get(i).getId() == stepId) {
@@ -84,7 +86,7 @@ public class StepActivity extends AppCompatActivity {
                                     fragmentManager.beginTransaction()
                                             .replace(R.id.step_detail_container, stepDetailFragment)
                                             .commit();*/
-                                    } catch (ArrayIndexOutOfBoundsException e) {
+                                    } catch (IndexOutOfBoundsException e) {
                                         e.printStackTrace();
                                         Toast.makeText(context, "This is the first step", Toast.LENGTH_SHORT).show();
                                     }
@@ -107,7 +109,7 @@ public class StepActivity extends AppCompatActivity {
                                     fragmentManager.beginTransaction()
                                             .replace(R.id.step_detail_container, stepDetailFragment)
                                             .commit();*/
-                                    } catch (ArrayIndexOutOfBoundsException e) {
+                                    } catch (IndexOutOfBoundsException e) {
                                         e.printStackTrace();
                                         Toast.makeText(context, "No more steps left", Toast.LENGTH_SHORT).show();
                                     }

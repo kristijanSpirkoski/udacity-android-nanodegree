@@ -27,6 +27,9 @@
 
     <string name="video_unavailable">Video Unavailable</string>
 
+    <string name="cd_recipe_list">Recipe list</string>
+
+    <string name="image_unavailable">Image unavailable</string>
 
 
 </resources>
