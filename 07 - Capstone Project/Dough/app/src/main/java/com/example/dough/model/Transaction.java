@@ -7,15 +7,15 @@ public class Transaction {
 
     private double amount;
     private Date date;
-    private String info;
-    private Category category;
+    private String name;
+    private String category;
     private Type type;
     private String uId;
 
-    public Transaction(double amount, Date date, String info, Category category, Type type, String uid) {
+    public Transaction(double amount, Date date, String name, String category, Type type, String uid) {
         this.amount = amount;
         this.date = date;
-        this.info = info;
+        this.name = name;
         this.category = category;
         this.type = type;
         this.uId = uid;
@@ -29,12 +29,12 @@ public class Transaction {
         this.amount = amount;
     }
 
-    public String getInfo() {
-        return info;
+    public String getName() {
+        return name;
     }
 
-    public void setInfo(String info) {
-        this.info = info;
+    public void setName(String info) {
+        this.name = info;
     }
     public Date getDate() {
         return this.date;
@@ -43,11 +43,11 @@ public class Transaction {
         this.date = date;
     }
 
-    public Category getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(Category category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 

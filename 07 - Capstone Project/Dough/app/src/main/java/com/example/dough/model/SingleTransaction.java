@@ -7,7 +7,7 @@ public class SingleTransaction extends Transaction{
 
 
 
-    public SingleTransaction(double amount, Date date, String info, Category category, Type type, String uid) {
+    public SingleTransaction(double amount, Date date, String info, String category, Type type, String uid) {
         super(amount, date, info, category, type, uid);
     }
 }

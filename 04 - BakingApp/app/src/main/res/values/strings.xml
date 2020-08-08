@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">Baking Time</string>
+    <string name="app_name">Baking App</string>
 
     <string name="recipe_item_name_default">Strawberry Cheese Cake</string>
     <string name="recipe_item_servings_label">Servings: </string>

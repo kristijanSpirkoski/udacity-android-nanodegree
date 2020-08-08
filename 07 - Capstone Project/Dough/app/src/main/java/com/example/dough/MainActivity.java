@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.dough.firebase.FirebaseConstants;
-import com.example.dough.model.Category;
 import com.example.dough.model.Date;
 import com.example.dough.model.SingleTransaction;
 import com.example.dough.model.Type;
@@ -40,8 +39,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import com.example.dough.model.User;
 

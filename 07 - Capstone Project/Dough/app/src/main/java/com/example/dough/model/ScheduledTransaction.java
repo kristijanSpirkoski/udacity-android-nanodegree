@@ -8,7 +8,7 @@ public class ScheduledTransaction extends Transaction{
     private int executionDayOfMonth;
 
 
-    public ScheduledTransaction(double amount, Date date, String info, Category category, Type type, int executionDayOfMonth, String uid) {
+    public ScheduledTransaction(double amount, Date date, String info, String category, Type type, int executionDayOfMonth, String uid) {
         super(amount, date, info, category, type, uid);
         this.executionDayOfMonth = executionDayOfMonth;
     }
