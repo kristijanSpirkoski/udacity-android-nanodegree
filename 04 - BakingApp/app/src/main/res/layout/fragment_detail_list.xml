@@ -17,7 +17,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             android:text="@string/recipe_ingredients_label"
-            style="@style/TextAppearance.AppCompat.Headline"
+            style="@style/TextAppearance.AppCompat.Title"
             android:layout_marginTop="18dp"
             android:layout_marginLeft="24dp"
             android:layout_marginStart="24dp"

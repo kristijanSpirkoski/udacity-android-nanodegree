@@ -4,4 +4,14 @@
     <string name="balance_label">Balance</string>
 
     <string name="sign_out">Sign out</string>
+
+    <string name="amount_hint">Amount</string>
+    <string name="edit_img_content_desc">Pick a date</string>
+
+    <string-array name="types">
+        <item>Expense</item>
+        <item>Income</item>
+        <item>Monthly Expense</item>
+        <item>Monthly Income</item>
+    </string-array>
 </resources>

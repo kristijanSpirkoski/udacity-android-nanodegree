@@ -5,7 +5,8 @@ import java.util.Calendar;
 public class Date {
     private String year;
     private String month;
-    private String day;
+    private String dayOfMonth;
+    private String dayOfWeek;
     private String hour;
     private String minute;
     private String second;
@@ -14,11 +15,6 @@ public class Date {
         year = "1100";
     }
 
-    public Date(String year, String month, String day) {
-        this.year = year;
-        this.month = month;
-        this.day = day;
-    }
 
     public String getYear() {
         return year;
@@ -34,14 +30,6 @@ public class Date {
 
     public void setMonth(String month) {
         this.month = month;
-    }
-
-    public String getDay() {
-        return day;
-    }
-
-    public void setDay(String day) {
-        this.day = day;
     }
 
     public String getHour() {
@@ -66,5 +54,21 @@ public class Date {
 
     public void setSecond(String second) {
         this.second = second;
+    }
+
+    public String getDayOfMonth() {
+        return dayOfMonth;
+    }
+
+    public void setDayOfMonth(String dayOfMonth) {
+        this.dayOfMonth = dayOfMonth;
+    }
+
+    public String getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 }

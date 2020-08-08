@@ -30,16 +30,15 @@ import retrofit2.Call;
 
 public class MasterListFragment extends Fragment {
 
-    public static final String SHARED_PREFERENCES_NAME = "myprefs";
-    private final String DATABASE_EMPTY_KEY = "database_key";
 
     private MasterListAdapter mAdapter;
     private Context activityContext;
 
 
+    private ArrayList<Recipe> recipes;
 
-    public MasterListFragment() {
-
+    public MasterListFragment(ArrayList<Recipe> recipes) {
+        this.recipes = recipes;
     }
 
     @Override
@@ -60,10 +59,6 @@ public class MasterListFragment extends Fragment {
         RecyclerView recyclerView = rootView.findViewById(R.id.recipe_card_recycler_view);
         mAdapter = new MasterListAdapter(activityContext);
 
-        AppDatabase mDb = AppDatabase.getInstance(activityContext);
-
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        boolean isDbEmpty = sharedPreferences.getBoolean(DATABASE_EMPTY_KEY, true);
 
         recyclerView.setAdapter(mAdapter);
 
@@ -74,56 +69,8 @@ public class MasterListFragment extends Fragment {
             LinearLayoutManager layoutManager = new LinearLayoutManager(activityContext);
             recyclerView.setLayoutManager(layoutManager);
         }
+         mAdapter.setRecipeData(recipes);
 
-        if(isDbEmpty) {
-
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(DATABASE_EMPTY_KEY, false);
-            editor.apply();
-
-            Call call = NetworkUtils.initializeRetrofit();
-            AppExecutors.getInstance().getDiskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        ArrayList<Recipe> recipes = (ArrayList<Recipe>) call.execute().body();
-
-                        if (recipes != null) {
-                            mDb.recipeDao().insertRecipes(recipes);
-                            Log.i("DBTAG", "recipes inserted in DB");
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Log.i("DBTAG", "recipes populated in fragment UI");
-                                    mAdapter.setRecipeData(recipes);
-                                }
-                            });
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.i("Network error", "Unable to talk to server");
-                    }
-                }
-            });
-        } else {
-            Log.i("DBTAG", "recipes loaded from db");
-
-            AppExecutors.getInstance().getDiskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    ArrayList<Recipe> recipes = (ArrayList<Recipe>) AppDatabase.getInstance(getActivity())
-                            .recipeDao().getRecipes();
-
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mAdapter.setRecipeData(recipes);
-                        }
-                    });
-                }
-            });
-        }
-        return super.onCreateView(inflater, container, savedInstanceState);
+         return super.onCreateView(inflater, container, savedInstanceState);
     }
 }

@@ -13,11 +13,16 @@ import com.example.dough.model.Transaction;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
 
     ArrayList<SingleTransaction> singleTransactions;
+
+    public TransactionAdapter() {
+        this.singleTransactions = new ArrayList<>();
+    }
 
     @NonNull
     @Override
@@ -30,8 +35,8 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         SingleTransaction transaction = singleTransactions.get(position);
 
-        holder.amountTextView.setText(transaction.getAmount());
-        holder.dateTextView.setText(transaction.getDate());
+        holder.amountTextView.setText(String.valueOf(transaction.getAmount()));
+        holder.dateTextView.setText(transaction.getDate().getYear());
         holder.categoryTextView.setText(transaction.getCategory());
     }
 
@@ -57,6 +62,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             dateTextView = itemView.findViewById(R.id.item_transaction_date);
             amountTextView = itemView.findViewById(R.id.item_transaction_amount);
         }
+    }
+    public void addTransaction(SingleTransaction transaction) {
+        this.singleTransactions.add(transaction);
+        notifyDataSetChanged();
     }
     public void updateTransactions(ArrayList<SingleTransaction> newTrans) {
         this.singleTransactions = newTrans;

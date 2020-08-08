@@ -52,6 +52,8 @@ import java.net.URL;
 
 public class StepDetailFragment extends Fragment implements ExoPlayer.EventListener{
 
+    public final static String PLAYER_CURRENT_POS_KEY = "curr_pos";
+
     private Step mStep;
     private Recipe mRecipe;
 
@@ -100,6 +102,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
             initializeMediaSession();
             initializePlayer(Uri.parse(videoUrl));
+            resumePlaybackFromStateBundle(savedInstanceState);
         } else {
             exoPlayerView.setVisibility(View.GONE);
             placeHolder.setVisibility(View.VISIBLE);
@@ -223,6 +226,18 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         }
 
 
+    }
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putLong(PLAYER_CURRENT_POS_KEY, Math.max(0, exoPlayer.getCurrentPosition()));
+    }
+    private boolean resumePlaybackFromStateBundle(@Nullable Bundle inState) {
+        if (inState != null) {
+            exoPlayer.seekTo(inState.getLong(PLAYER_CURRENT_POS_KEY));
+            return true;
+        }
+        return false;
     }
     public void updateStepDescription(String newDesc) {
         mDescriptionView.setText(newDesc);

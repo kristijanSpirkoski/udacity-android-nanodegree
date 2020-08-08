@@ -5,7 +5,9 @@ import java.util.GregorianCalendar;
 
 public class SingleTransaction extends Transaction{
 
+    public SingleTransaction() {
 
+    }
 
     public SingleTransaction(double amount, Date date, String info, String category, Type type, String uid) {
         super(amount, date, info, category, type, uid);

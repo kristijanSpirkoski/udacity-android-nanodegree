@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.example.bakingtime.database.AppDatabase;
 import com.example.bakingtime.models.Ingredient;
 import com.example.bakingtime.models.Recipe;
+import com.example.bakingtime.ui.MainActivity;
 import com.example.bakingtime.ui.MasterListFragment;
 import com.example.bakingtime.ui.RecipeDetailActivity;
 import com.example.bakingtime.ui.RecipeFragment;
@@ -49,7 +50,7 @@ public class RecipeService extends IntentService {
 
     private void handleAction() {
 
-        SharedPreferences sharedPreferences = getSharedPreferences(MasterListFragment.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
         int recipeId = sharedPreferences.getInt(RecipeDetailActivity.RECIPE_WIDGET_ID_KEY, 0);
 
         AppExecutors.getInstance().getDiskIO().execute(new Runnable() {

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 public class RecipeFragment extends Fragment {
 
     private TextView ingredientView;
+    private TextView ingredientsLabel;
     private RecyclerView recyclerView;
 
     private Recipe mRecipe;
@@ -52,12 +53,16 @@ public class RecipeFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recipe_steps_recycler_view);
         ingredientView = view.findViewById(R.id.recipe_ingredients);
+        ingredientsLabel = view.findViewById(R.id.recipe_ingredients_label);
+
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         mAdapter = new DetailListAdapter(activityContext);
 
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(layoutManager);
+
+        ingredientsLabel.setText(mRecipe.getName() + " Ingredients");
 
         StringBuilder ingredientText = new StringBuilder("");
         for(Ingredient i : mRecipe.getIngredients()) {

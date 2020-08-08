@@ -3,6 +3,9 @@ package com.example.dough;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.math.MathUtils;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.dough.firebase.FirebaseConstants;
@@ -34,9 +38,13 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -45,6 +53,9 @@ import com.example.dough.model.User;
 
 public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
 
+    public final static String INCOME_SET_KEY = "Incomes";
+    public final static String EXPENSE_SET_KEY = "Expenses";
+
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference usersDatabaseReference;
     private DatabaseReference transactionsDatabaseReference;
@@ -52,6 +63,12 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private BubbleChart bubbleChart;
+
+    private RecyclerView recyclerView;
+    private TransactionAdapter mAdapter;
+
+    private ArrayList<BubbleEntry> mMonthlyIncomes;
+    private ArrayList<BubbleEntry> mMonthlyExpenses;
 
     private FloatingActionButton fab;
 
@@ -62,23 +79,24 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mMonthlyIncomes = new ArrayList<>();
+        mMonthlyExpenses = new ArrayList<>();
 
+        recyclerView = findViewById(R.id.transaction_recycler_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mAdapter = new TransactionAdapter();
+
+
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(mAdapter);
+        fab = findViewById(R.id.fab);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         usersDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.USERS_KEY);
         transactionsDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.TRANSACTIONS_KEY);
+        recyclerView.setVisibility(View.GONE);
 
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                transactionsDatabaseReference.child("bXgVX1Kc7NOYnGuTP61M4eIUwnl2")
-                        .push()
-                        .setValue(new SingleTransaction(23, new Date(
-                        "2020", "5", "13"), "hello", new Category(), Type.picka,
-                                firebaseAuth.getCurrentUser().getUid()));
-            }
-        });
+        initializeBubbleChart();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -102,8 +120,87 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
                 }
             }
         };
+        transactionsDatabaseReference.child(firebaseAuth.getUid()).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                SingleTransaction newTransaction = snapshot.getValue(SingleTransaction.class);
 
+                /*int xValue = Integer.parseInt(newTransaction.getDate().getDayOfMonth());
+                int yValue = Integer.parseInt(newTransaction.getDate().getHour());
+                double size = newTransaction.getAmount();
+                BubbleEntry bubbleEntry = new BubbleEntry(xValue, yValue, (float) size);*/
+                int range = 30;
+                BubbleEntry bubbleEntry = new BubbleEntry((float) (Math.random() * range), (float) (Math.random() * range), (float) (Math.random() * 3));
 
+                if (newTransaction.getType() == Type.EXPENSE) {
+
+                    mMonthlyExpenses.add(bubbleEntry);
+                    BubbleData data = bubbleChart.getData();
+                    IBubbleDataSet set = data.getDataSetByLabel(EXPENSE_SET_KEY, false);
+                    set.addEntry(bubbleEntry);
+                    set.removeEntry(bubbleEntry);
+                    set.addEntry(bubbleEntry);
+                    data.notifyDataChanged();
+                    bubbleChart.notifyDataSetChanged();
+                    bubbleChart.invalidate();
+                } else {
+                    //mMonthlyIncomes.addEntry(bubbleEntry);
+                }
+
+                mAdapter.addTransaction(newTransaction);
+                //updateChartUI();
+            }
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            int count = 0;
+            @Override
+            public void onClick(View view) {
+                Intent addTransactionIntent = new Intent(MainActivity.this, AddTransactionActivity.class);
+                startActivity(addTransactionIntent);
+                /*transactionsDatabaseReference.child(firebaseAuth.getUid())
+                        .push()
+                        .setValue(new SingleTransaction(23, new Date(),
+                                "hello", "myCate", Type.EXPENSE,
+                                firebaseAuth.getCurrentUser().getUid()));
+                if(count == 0) {
+                    count++;
+                    fab.callOnClick();
+                } else {
+                    count = 0;
+                }*/
+
+            }
+        });
+    }
+
+    public void updateChartUI() {
+
+        BubbleData data = bubbleChart.getData();
+
+        // create a data object with the data sets
+        data.notifyDataChanged();
+        bubbleChart.setVisibility(View.GONE);
+        bubbleChart.notifyDataSetChanged();
+        bubbleChart.setData(data);
+        bubbleChart.invalidate();
+        bubbleChart.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -137,37 +234,74 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     public void initializeBubbleChart() {
         bubbleChart = findViewById(R.id.bubble_chart);
         bubbleChart.getDescription().setEnabled(false);
+        bubbleChart.getDescription().setEnabled(false);
 
         bubbleChart.setOnChartValueSelectedListener(this);
+
         bubbleChart.setDrawGridBackground(false);
-        bubbleChart.setTouchEnabled(false);
+
+        bubbleChart.setTouchEnabled(true);
+
+        // enable scaling and dragging
         bubbleChart.setDragEnabled(true);
         bubbleChart.setScaleEnabled(true);
+
         bubbleChart.setMaxVisibleValueCount(200);
         bubbleChart.setPinchZoom(true);
+
+
         Legend l = bubbleChart.getLegend();
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
         l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
         l.setOrientation(Legend.LegendOrientation.VERTICAL);
         l.setDrawInside(false);
+
         YAxis yl = bubbleChart.getAxisLeft();
         yl.setSpaceTop(30f);
         yl.setSpaceBottom(30f);
         yl.setDrawZeroLine(false);
+
         bubbleChart.getAxisRight().setEnabled(false);
+
         XAxis xl = bubbleChart.getXAxis();
         xl.setPosition(XAxis.XAxisPosition.BOTTOM);
 
-        ArrayList<BubbleEntry> values1 = new ArrayList<>();
+        BubbleDataSet set1 = new BubbleDataSet(mMonthlyIncomes, INCOME_SET_KEY);
+        set1.setDrawIcons(false);
+        set1.setColor(ColorTemplate.COLORFUL_COLORS[0], 130);
+        set1.setDrawValues(true);
+
+        BubbleDataSet set2 = new BubbleDataSet(mMonthlyExpenses, EXPENSE_SET_KEY);
+        set2.setDrawIcons(false);
+        set2.setIconsOffset(new MPPointF(0, 15));
+        set2.setColor(ColorTemplate.COLORFUL_COLORS[1], 130);
+        set2.setDrawValues(true);
+
+        ArrayList<IBubbleDataSet> dataSets = new ArrayList<>();
+        dataSets.add(set1); // add the data sets
+        dataSets.add(set2);
+
+        // create a data object with the data sets
+        BubbleData data = new BubbleData(dataSets);
+        data.setDrawValues(false);
+        data.setValueTextSize(8f);
+        data.setValueTextColor(Color.WHITE);
+        data.setHighlightCircleWidth(1.5f);
+
+        bubbleChart.setData(data);
+        bubbleChart.invalidate();
+
+
+        /*ArrayList<BubbleEntry> values1 = new ArrayList<>();
         ArrayList<BubbleEntry> values2 = new ArrayList<>();
         ArrayList<BubbleEntry> values3 = new ArrayList<>();
 
         int range = 6000;
 
-        for (int i = 0; i < 5; i++) {
-            values1.add(new BubbleEntry(i, (float) (Math.random() * range), (float) (Math.random() * range)));
-            values2.add(new BubbleEntry(i, (float) (Math.random() * range), (float) (Math.random() * range)));
-            values3.add(new BubbleEntry(i, (float) (Math.random() * range), (float) (Math.random() * range)));
+        for (int i = 0; i < 30; i++) {
+            values1.add(new BubbleEntry(i, (float) (Math.random() * range), 40));
+            values2.add(new BubbleEntry(i, (float) (Math.random() * range), 40));
+            values3.add(new BubbleEntry(i, (float) (Math.random() * range), 40));
         }
 
         // create a dataset and give it a type
@@ -199,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         data.setHighlightCircleWidth(1.5f);
 
         bubbleChart.setData(data);
-        bubbleChart.invalidate();
+        bubbleChart.invalidate();*/
     }
 
 
@@ -219,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 
     @Override
     public void onValueSelected(Entry e, Highlight h) {
-
+        Log.i("SELTAG", "selected");
     }
 
     @Override

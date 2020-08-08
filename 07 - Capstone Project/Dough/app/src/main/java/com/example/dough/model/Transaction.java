@@ -12,6 +12,10 @@ public class Transaction {
     private Type type;
     private String uId;
 
+    public Transaction() {
+
+    }
+
     public Transaction(double amount, Date date, String name, String category, Type type, String uid) {
         this.amount = amount;
         this.date = date;
