@@ -210,7 +210,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             mErrorView.setVisibility(View.INVISIBLE);
 
 
-            String userAgent = Util.getUserAgent(getActivity(), "BakingTime");
+            String userAgent = Util.getUserAgent(getActivity(), "BakingApp");
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(getActivity(),
                     userAgent), new DefaultExtractorsFactory(), null, null);
             exoPlayer.prepare(mediaSource);
