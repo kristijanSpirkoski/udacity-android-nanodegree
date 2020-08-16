@@ -9,7 +9,7 @@ public class SingleTransaction extends Transaction{
 
     }
 
-    public SingleTransaction(double amount, Date date, String info, String category, Type type, String uid) {
-        super(amount, date, info, category, type, uid);
+    public SingleTransaction(double amount, Date date,String category, Type type, String uid) {
+        super(amount, date, category, type, uid);
     }
 }

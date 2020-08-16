@@ -67,6 +67,9 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     private ImageView placeHolder;
     private TextView mDescriptionView;
 
+    private boolean flag;
+    private long currPos;
+
 
     public StepDetailFragment() {}
 
@@ -90,37 +93,87 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         mErrorView = viewRoot.findViewById(R.id.video_unavailable_label);
 
 
-        String videoUrl = mStep.getVideoURL();
-        String thumbnailUrl = mStep.getThumbnailURL();
-
-
         mDescriptionView.setText(mStep.getDescription());
 
-        if(isUrlValid(videoUrl)) {
-            placeHolder.setVisibility(View.INVISIBLE);
-            mErrorView.setVisibility(View.INVISIBLE);
-
-            initializeMediaSession();
-            initializePlayer(Uri.parse(videoUrl));
-            resumePlaybackFromStateBundle(savedInstanceState);
-        } else {
-            exoPlayerView.setVisibility(View.GONE);
-            placeHolder.setVisibility(View.VISIBLE);
-            mErrorView.setVisibility(View.VISIBLE);
+        flag = false;
+        if (savedInstanceState != null) {
+            flag = true;
+            currPos = savedInstanceState.getLong(PLAYER_CURRENT_POS_KEY);
         }
-
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
-    public void onDestroyView() {
-        if(mMediaSession != null) {
-            releasePlayer();
-            mMediaSession.setActive(false);
-            mMediaSession = null;
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            String videoUrl = mStep.getVideoURL();
+            String thumbnailUrl = mStep.getThumbnailURL();
+            if(isUrlValid(videoUrl)) {
+                placeHolder.setVisibility(View.INVISIBLE);
+                mErrorView.setVisibility(View.INVISIBLE);
+
+                initializeMediaSession();
+                initializePlayer(Uri.parse(videoUrl));
+                exoPlayer.seekTo(currPos);
+            } else {
+                exoPlayerView.setVisibility(View.GONE);
+                placeHolder.setVisibility(View.VISIBLE);
+                mErrorView.setVisibility(View.VISIBLE);
+            }
         }
-        super.onDestroyView();
+        if ((Util.SDK_INT <= 23 || exoPlayer == null)) {
+            // initialize player
+            String videoUrl = mStep.getVideoURL();
+            String thumbnailUrl = mStep.getThumbnailURL();
+            if(isUrlValid(videoUrl)) {
+                placeHolder.setVisibility(View.INVISIBLE);
+                mErrorView.setVisibility(View.INVISIBLE);
+
+                initializeMediaSession();
+                initializePlayer(Uri.parse(videoUrl));
+                exoPlayer.seekTo(currPos);
+            } else {
+                exoPlayerView.setVisibility(View.GONE);
+                placeHolder.setVisibility(View.VISIBLE);
+                mErrorView.setVisibility(View.VISIBLE);
+            }
+        }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            if(mMediaSession != null) {
+                flag = false;
+                releasePlayer();
+                mMediaSession.setActive(false);
+                mMediaSession = null;
+            }
+            // release player
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            if(mMediaSession != null) {
+                flag = false;
+                releasePlayer();
+                mMediaSession.setActive(false);
+                mMediaSession = null;
+            }
+            // release player
+        }
+    }
+
 
     private void initializeMediaSession() {
 
@@ -231,13 +284,6 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         super.onSaveInstanceState(outState);
 
         outState.putLong(PLAYER_CURRENT_POS_KEY, Math.max(0, exoPlayer.getCurrentPosition()));
-    }
-    private boolean resumePlaybackFromStateBundle(@Nullable Bundle inState) {
-        if (inState != null) {
-            exoPlayer.seekTo(inState.getLong(PLAYER_CURRENT_POS_KEY));
-            return true;
-        }
-        return false;
     }
     public void updateStepDescription(String newDesc) {
         mDescriptionView.setText(newDesc);

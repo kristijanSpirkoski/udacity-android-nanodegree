@@ -8,13 +8,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dough.model.Date;
 import com.example.dough.model.SingleTransaction;
 import com.example.dough.model.Transaction;
 
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
 
@@ -35,8 +38,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         SingleTransaction transaction = singleTransactions.get(position);
 
-        holder.amountTextView.setText(String.valueOf(transaction.getAmount()));
-        holder.dateTextView.setText(transaction.getDate().getYear());
+        holder.amountTextView.setText(String.valueOf(Math.round(transaction.getAmount()*100)/100));
+
+        Date date = transaction.getDate();
+        GregorianCalendar calendar = new GregorianCalendar(date.getYear(), date.getMonth(), date.getDayOfMonth());
+        String datePickedString = DateFormat.getDateInstance().format(calendar.getTime());
+        holder.dateTextView.setText(datePickedString);
+
         holder.categoryTextView.setText(transaction.getCategory());
     }
 

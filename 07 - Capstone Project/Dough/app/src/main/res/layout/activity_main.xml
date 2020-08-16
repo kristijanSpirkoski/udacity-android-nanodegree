@@ -38,12 +38,12 @@
                     />
 
 
-                <com.github.mikephil.charting.charts.BubbleChart
-                    android:id="@+id/bubble_chart"
+                <com.github.mikephil.charting.charts.ScatterChart
+                    android:id="@+id/scatter_chart"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
                     >
-                </com.github.mikephil.charting.charts.BubbleChart>
+                </com.github.mikephil.charting.charts.ScatterChart>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/transaction_recycler_view"

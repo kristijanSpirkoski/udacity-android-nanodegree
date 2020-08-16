@@ -23,6 +23,7 @@ import com.example.dough.model.SingleTransaction;
 import com.example.dough.model.Type;
 import com.firebase.ui.auth.AuthUI;
 import com.github.mikephil.charting.charts.BubbleChart;
+import com.github.mikephil.charting.charts.ScatterChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -30,8 +31,11 @@ import com.github.mikephil.charting.data.BubbleData;
 import com.github.mikephil.charting.data.BubbleDataSet;
 import com.github.mikephil.charting.data.BubbleEntry;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.ScatterData;
+import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IBubbleDataSet;
+import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.MPPointF;
@@ -47,40 +51,45 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import com.example.dough.model.User;
 
 
-public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
+public class MainActivity extends AppCompatActivity {
 
     public final static String INCOME_SET_KEY = "Incomes";
     public final static String EXPENSE_SET_KEY = "Expenses";
 
+    private ArrayList<String> mCategories;
+
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference usersDatabaseReference;
     private DatabaseReference transactionsDatabaseReference;
+    private DatabaseReference categoriesDatabaseReference;
+
+    private ChildEventListener transactionEventListener;
+
+    private ScatterChart scatterChart;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
-    private BubbleChart bubbleChart;
 
     private RecyclerView recyclerView;
     private TransactionAdapter mAdapter;
 
-    private ArrayList<BubbleEntry> mMonthlyIncomes;
-    private ArrayList<BubbleEntry> mMonthlyExpenses;
+    private double mBalance = 0;
+    private ScatterDataSet mMonthlyIncomes;
+    private ScatterDataSet mMonthlyExpenses;
 
     private FloatingActionButton fab;
 
-    public static final int RC_SIGN_IN = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mMonthlyIncomes = new ArrayList<>();
-        mMonthlyExpenses = new ArrayList<>();
 
         recyclerView = findViewById(R.id.transaction_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -94,9 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         firebaseDatabase = FirebaseDatabase.getInstance();
         usersDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.USERS_KEY);
         transactionsDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.TRANSACTIONS_KEY);
-        recyclerView.setVisibility(View.GONE);
-
-        initializeBubbleChart();
+        categoriesDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.CATEGORIES_KEY);
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -105,9 +112,10 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if( user != null) {
                     //user signed in
-                    Toast.makeText(MainActivity.this, "Signed in", Toast.LENGTH_SHORT).show();
+                    onSignedInInitialize();
                 } else {
                     //user signed out
+                    onSignOutCleanup();
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
@@ -116,93 +124,35 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
                                             new AuthUI.IdpConfig.GoogleBuilder().build(),
                                             new AuthUI.IdpConfig.EmailBuilder().build()))
                                     .build(),
-                            RC_SIGN_IN);
+                            FirebaseConstants.RC_SIGN_IN);
                 }
             }
         };
-        transactionsDatabaseReference.child(firebaseAuth.getUid()).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                SingleTransaction newTransaction = snapshot.getValue(SingleTransaction.class);
-
-                /*int xValue = Integer.parseInt(newTransaction.getDate().getDayOfMonth());
-                int yValue = Integer.parseInt(newTransaction.getDate().getHour());
-                double size = newTransaction.getAmount();
-                BubbleEntry bubbleEntry = new BubbleEntry(xValue, yValue, (float) size);*/
-                int range = 30;
-                BubbleEntry bubbleEntry = new BubbleEntry((float) (Math.random() * range), (float) (Math.random() * range), (float) (Math.random() * 3));
-
-                if (newTransaction.getType() == Type.EXPENSE) {
-
-                    mMonthlyExpenses.add(bubbleEntry);
-                    BubbleData data = bubbleChart.getData();
-                    IBubbleDataSet set = data.getDataSetByLabel(EXPENSE_SET_KEY, false);
-                    set.addEntry(bubbleEntry);
-                    set.removeEntry(bubbleEntry);
-                    set.addEntry(bubbleEntry);
-                    data.notifyDataChanged();
-                    bubbleChart.notifyDataSetChanged();
-                    bubbleChart.invalidate();
-                } else {
-                    //mMonthlyIncomes.addEntry(bubbleEntry);
-                }
-
-                mAdapter.addTransaction(newTransaction);
-                //updateChartUI();
-            }
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
 
         fab.setOnClickListener(new View.OnClickListener() {
-            int count = 0;
             @Override
             public void onClick(View view) {
                 Intent addTransactionIntent = new Intent(MainActivity.this, AddTransactionActivity.class);
                 startActivity(addTransactionIntent);
-                /*transactionsDatabaseReference.child(firebaseAuth.getUid())
-                        .push()
-                        .setValue(new SingleTransaction(23, new Date(),
-                                "hello", "myCate", Type.EXPENSE,
-                                firebaseAuth.getCurrentUser().getUid()));
-                if(count == 0) {
-                    count++;
-                    fab.callOnClick();
-                } else {
-                    count = 0;
-                }*/
-
+                /*Date date = new Date();
+                date.setYear(2020);
+                date.setMonth(7);
+                transactionsDatabaseReference.child(firebaseAuth.getCurrentUser().getUid())
+                        .push().setValue(new SingleTransaction(Math.random() * 500, date, "okoza",
+                        Type.EXPENSE, firebaseAuth.getCurrentUser().getUid()));
+*/
             }
         });
     }
 
-    public void updateChartUI() {
-
-        BubbleData data = bubbleChart.getData();
-
-        // create a data object with the data sets
-        data.notifyDataChanged();
-        bubbleChart.setVisibility(View.GONE);
-        bubbleChart.notifyDataSetChanged();
-        bubbleChart.setData(data);
-        bubbleChart.invalidate();
-        bubbleChart.setVisibility(View.VISIBLE);
+    private void addDefaultCategories() {
+        if(firebaseAuth.getCurrentUser() != null) {
+            for (String s : FirebaseConstants.defaultCategories) {
+                categoriesDatabaseReference.child(firebaseAuth.getCurrentUser().getUid())
+                        .push().setValue(s);
+            }
+        }
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options_menu, menu);
@@ -214,6 +164,10 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         if(item.getItemId() == R.id.sign_out) {
             firebaseAuth.signOut();
             return true;
+        } else if(item.getItemId() == R.id.manage_substcriptions) {
+            Intent intent = new Intent(this, MonthlyActivity.class);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -223,142 +177,141 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         super.onActivityResult(requestCode, resultCode, data);
 
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        if(requestCode == RC_SIGN_IN && resultCode == RESULT_OK && firebaseUser != null) {
+        if(requestCode == FirebaseConstants.RC_SIGN_IN && resultCode == RESULT_OK && firebaseUser != null) {
             Log.i("FDBTAG", "added user");
             User mUser = new User(firebaseUser.getUid(), firebaseUser.getDisplayName(), firebaseUser.getEmail());
             usersDatabaseReference.child(firebaseUser.getUid()).setValue(mUser);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    addDefaultCategories();
+                }
+            }).start();
         }
 
     }
 
-    public void initializeBubbleChart() {
-        bubbleChart = findViewById(R.id.bubble_chart);
-        bubbleChart.getDescription().setEnabled(false);
-        bubbleChart.getDescription().setEnabled(false);
+    public void initializeScatterChart() {
+        scatterChart = findViewById(R.id.scatter_chart);
+        scatterChart.getDescription().setEnabled(false);
 
-        bubbleChart.setOnChartValueSelectedListener(this);
-
-        bubbleChart.setDrawGridBackground(false);
-
-        bubbleChart.setTouchEnabled(true);
+        scatterChart.setDrawGridBackground(false);
+        scatterChart.setTouchEnabled(true);
+        scatterChart.setMaxHighlightDistance(50f);
 
         // enable scaling and dragging
-        bubbleChart.setDragEnabled(true);
-        bubbleChart.setScaleEnabled(true);
+        scatterChart.setDragEnabled(true);
+        scatterChart.setScaleEnabled(true);
 
-        bubbleChart.setMaxVisibleValueCount(200);
-        bubbleChart.setPinchZoom(true);
+        scatterChart.setPinchZoom(true);
 
-
-        Legend l = bubbleChart.getLegend();
+        Legend l = scatterChart.getLegend();
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
         l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
         l.setOrientation(Legend.LegendOrientation.VERTICAL);
         l.setDrawInside(false);
+        l.setXOffset(5f);
 
-        YAxis yl = bubbleChart.getAxisLeft();
-        yl.setSpaceTop(30f);
-        yl.setSpaceBottom(30f);
-        yl.setDrawZeroLine(false);
+        YAxis yl = scatterChart.getAxisLeft();
+        yl.setAxisMinimum(0f); // this replaces setStartAtZero(true)
 
-        bubbleChart.getAxisRight().setEnabled(false);
+        scatterChart.getAxisRight().setEnabled(false);
 
-        XAxis xl = bubbleChart.getXAxis();
-        xl.setPosition(XAxis.XAxisPosition.BOTTOM);
+        XAxis xl = scatterChart.getXAxis();
+        xl.setAxisMaximum(31);
+        xl.setAxisMinimum(0);
+        xl.setDrawGridLines(false);
 
-        BubbleDataSet set1 = new BubbleDataSet(mMonthlyIncomes, INCOME_SET_KEY);
-        set1.setDrawIcons(false);
-        set1.setColor(ColorTemplate.COLORFUL_COLORS[0], 130);
-        set1.setDrawValues(true);
-
-        BubbleDataSet set2 = new BubbleDataSet(mMonthlyExpenses, EXPENSE_SET_KEY);
-        set2.setDrawIcons(false);
-        set2.setIconsOffset(new MPPointF(0, 15));
-        set2.setColor(ColorTemplate.COLORFUL_COLORS[1], 130);
-        set2.setDrawValues(true);
-
-        ArrayList<IBubbleDataSet> dataSets = new ArrayList<>();
-        dataSets.add(set1); // add the data sets
-        dataSets.add(set2);
-
-        // create a data object with the data sets
-        BubbleData data = new BubbleData(dataSets);
-        data.setDrawValues(false);
-        data.setValueTextSize(8f);
-        data.setValueTextColor(Color.WHITE);
-        data.setHighlightCircleWidth(1.5f);
-
-        bubbleChart.setData(data);
-        bubbleChart.invalidate();
-
-
-        /*ArrayList<BubbleEntry> values1 = new ArrayList<>();
-        ArrayList<BubbleEntry> values2 = new ArrayList<>();
-        ArrayList<BubbleEntry> values3 = new ArrayList<>();
-
-        int range = 6000;
-
-        for (int i = 0; i < 30; i++) {
-            values1.add(new BubbleEntry(i, (float) (Math.random() * range), 40));
-            values2.add(new BubbleEntry(i, (float) (Math.random() * range), 40));
-            values3.add(new BubbleEntry(i, (float) (Math.random() * range), 40));
-        }
+        ArrayList<Entry> values1 = new ArrayList<>();
+        ArrayList<Entry> values2 = new ArrayList<>();
 
         // create a dataset and give it a type
-        BubbleDataSet set1 = new BubbleDataSet(values1, "DS 1");
-        set1.setDrawIcons(false);
-        set1.setColor(ColorTemplate.COLORFUL_COLORS[0], 130);
-        set1.setDrawValues(true);
+        mMonthlyExpenses = new ScatterDataSet(values1, EXPENSE_SET_KEY);
+        mMonthlyExpenses.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
+        mMonthlyExpenses.setColor(ColorTemplate.COLORFUL_COLORS[0]);
 
-        BubbleDataSet set2 = new BubbleDataSet(values2, "DS 2");
-        set2.setDrawIcons(false);
-        set2.setIconsOffset(new MPPointF(0, 15));
-        set2.setColor(ColorTemplate.COLORFUL_COLORS[1], 130);
-        set2.setDrawValues(true);
+        mMonthlyIncomes = new ScatterDataSet(values2, INCOME_SET_KEY);
+        mMonthlyIncomes.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
+        mMonthlyIncomes.setScatterShapeHoleColor(ColorTemplate.COLORFUL_COLORS[3]);
+        mMonthlyIncomes.setScatterShapeHoleRadius(18f);
+        mMonthlyIncomes.setColor(ColorTemplate.COLORFUL_COLORS[1]);
 
-        BubbleDataSet set3 = new BubbleDataSet(values3, "DS 3");
-        set3.setColor(ColorTemplate.COLORFUL_COLORS[2], 130);
-        set3.setDrawValues(true);
+        mMonthlyExpenses.setScatterShapeSize(40f);
+        mMonthlyIncomes.setScatterShapeSize(40f);
 
-        ArrayList<IBubbleDataSet> dataSets = new ArrayList<>();
-        dataSets.add(set1); // add the data sets
-        dataSets.add(set2);
-        dataSets.add(set3);
+        ArrayList<IScatterDataSet> dataSets = new ArrayList<>();
+        dataSets.add(mMonthlyExpenses); // add the data sets
+        dataSets.add(mMonthlyIncomes);
 
         // create a data object with the data sets
-        BubbleData data = new BubbleData(dataSets);
-        data.setDrawValues(false);
-        data.setValueTextSize(8f);
-        data.setValueTextColor(Color.WHITE);
-        data.setHighlightCircleWidth(1.5f);
+        ScatterData data = new ScatterData(dataSets);
 
-        bubbleChart.setData(data);
-        bubbleChart.invalidate();*/
+        scatterChart.setData(data);
+        scatterChart.invalidate();
     }
-
-
-
-
+    public void onSignedInInitialize() {
+        attachEventListener();
+        initializeScatterChart();
+    }
+    public void onSignOutCleanup() {
+        mAdapter.updateTransactions(new ArrayList<SingleTransaction>());
+        mAdapter.notifyDataSetChanged();
+        detachEventListener();
+    }
+    public void attachEventListener() {
+        if(transactionEventListener == null) {
+            transactionEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    SingleTransaction newTransaction = snapshot.getValue(SingleTransaction.class);
+                    Calendar calendar = Calendar.getInstance();
+                    if (newTransaction.getType() == Type.EXPENSE) {
+                        mBalance -= newTransaction.getAmount();
+                    } else if (newTransaction.getType() == Type.INCOME) {
+                        mBalance += newTransaction.getAmount();
+                    }
+                    Log.i("TRANSSSSSTAG", calendar.getTime().toString());
+                    if (newTransaction.getDate().getYear() == calendar.get(Calendar.YEAR) &&
+                            newTransaction.getDate().getMonth() == calendar.get(Calendar.MONTH)) {
+                        mMonthlyExpenses.addEntry(new Entry(newTransaction.getDate().getDayOfMonth(),
+                                (float) newTransaction.getAmount()));
+                        scatterChart.getScatterData().notifyDataChanged();
+                        scatterChart.notifyDataSetChanged();
+                        scatterChart.invalidate();
+                    }
+                    mAdapter.addTransaction(newTransaction);
+                }
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {}
+            };
+            transactionsDatabaseReference.child(firebaseAuth.getCurrentUser().getUid())
+                    .addChildEventListener(transactionEventListener);
+        }
+    }
+    public void detachEventListener() {
+        if(transactionEventListener != null) {
+            transactionsDatabaseReference.removeEventListener(transactionEventListener);
+            transactionEventListener = null;
+        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(authStateListener != null) {
+            firebaseAuth.removeAuthStateListener(authStateListener);
+        }
+        mAdapter.updateTransactions(new ArrayList<SingleTransaction>());
+        onSignOutCleanup();
+    }
     @Override
     protected void onResume() {
         super.onResume();
         firebaseAuth.addAuthStateListener(authStateListener);
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        firebaseAuth.removeAuthStateListener(authStateListener);
-    }
-
-    @Override
-    public void onValueSelected(Entry e, Highlight h) {
-        Log.i("SELTAG", "selected");
-    }
-
-    @Override
-    public void onNothingSelected() {
-
-    }
-
 }

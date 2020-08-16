@@ -8,10 +8,27 @@
     <string name="amount_hint">Amount</string>
     <string name="edit_img_content_desc">Pick a date</string>
 
+    <string name="type_label">Type</string>
+    <string name="amount_label">Amount</string>
+    <string name="date_label">Date</string>
+    <string name="category_label">Category</string>
+    <string name="add_label">Add</string>
+    <string name="category_default">Choose</string>
+
+    <string name="category_add_button">New</string>
+
     <string-array name="types">
         <item>Expense</item>
         <item>Income</item>
         <item>Monthly Expense</item>
         <item>Monthly Income</item>
     </string-array>
+
+    <string name="monthly_expenses_label">Monthly Expenses</string>
+    <string name="monthly_incomes_label">Monthly Incomes</string>
+
+    <string name="manage_subscriptions">Manage Subscriptions</string>
+
+    <string name="subsctiption_message">Transaction will be executed on this day every next month until cancelled</string>
+
 </resources>
