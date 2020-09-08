@@ -1,46 +1,38 @@
-package com.example.dough;
+package com.example.dough.ui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dough.R;
 import com.example.dough.firebase.FirebaseConstants;
+import com.example.dough.job.TransactionScheduler;
 import com.example.dough.model.Date;
 import com.example.dough.model.ScheduledTransaction;
 import com.example.dough.model.SingleTransaction;
 import com.example.dough.model.Transaction;
 import com.example.dough.model.Type;
 import com.firebase.ui.auth.AuthUI;
-import com.github.mikephil.charting.data.BubbleData;
-import com.github.mikephil.charting.data.BubbleEntry;
-import com.github.mikephil.charting.interfaces.datasets.IBubbleDataSet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -48,7 +40,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -249,7 +240,7 @@ public class AddTransactionActivity extends AppCompatActivity implements Adapter
         Calendar calendar = Calendar.getInstance();
         mDate.setYear(calendar.get(Calendar.YEAR));
         mDate.setMonth(calendar.get(Calendar.MONTH));
-        mDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH)+1);
+        mDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
         mDate.setDayOfWeek(calendar.get(Calendar.DAY_OF_WEEK));
         mDate.setHour(calendar.get(Calendar.HOUR_OF_DAY));
         mDate.setMinute(calendar.get(Calendar.MINUTE));
@@ -285,6 +276,10 @@ public class AddTransactionActivity extends AppCompatActivity implements Adapter
                                 mDate.getDayOfMonth(), firebaseAuth.getCurrentUser().getUid());
                         scheduledTransactionsDatabaseReference.child(firebaseAuth.getCurrentUser().getUid())
                                 .push().setValue(transaction);
+                        TransactionScheduler scheduler = new TransactionScheduler(context,
+                                (ScheduledTransaction) transaction);
+                        scheduler.scheduleTransaction(true);
+
                         Toast.makeText(context, "Scheduled", Toast.LENGTH_SHORT).show();
                         break;
                 }

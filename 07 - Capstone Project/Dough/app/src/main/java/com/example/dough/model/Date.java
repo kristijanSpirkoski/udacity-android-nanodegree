@@ -16,7 +16,7 @@ public class Date {
         Calendar calendar = Calendar.getInstance();
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
-        dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)+1;
+        dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
         dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);

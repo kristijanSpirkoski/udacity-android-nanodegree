@@ -29,6 +29,8 @@
 
     <string name="manage_subscriptions">Manage Subscriptions</string>
 
-    <string name="subsctiption_message">Transaction will be executed on this day every next month until cancelled</string>
+    <string name="subsctiption_message">Transaction will be executed on this day every month until cancelled</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
 
 </resources>

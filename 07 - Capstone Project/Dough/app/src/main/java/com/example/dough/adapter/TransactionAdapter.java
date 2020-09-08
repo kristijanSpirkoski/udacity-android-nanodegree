@@ -1,4 +1,4 @@
-package com.example.dough;
+package com.example.dough.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +8,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dough.R;
 import com.example.dough.model.Date;
 import com.example.dough.model.SingleTransaction;
 import com.example.dough.model.Transaction;
 
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -78,5 +76,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     public void updateTransactions(ArrayList<SingleTransaction> newTrans) {
         this.singleTransactions = newTrans;
         notifyDataSetChanged();
+    }
+    public boolean containsTransaction(SingleTransaction transaction) {
+        for(Transaction t : singleTransactions) {
+            if(transaction == t) {
+                return true;
+            }
+        }
+        return false;
     }
 }

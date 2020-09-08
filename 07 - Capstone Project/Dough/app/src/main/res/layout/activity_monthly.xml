@@ -7,7 +7,7 @@
     android:layout_marginTop="24dp"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MonthlyActivity">
+    tools:context=".ui.MonthlyActivity">
     <TextView
         android:id="@+id/monthly_expense_label"
         android:text="@string/monthly_expenses_label"

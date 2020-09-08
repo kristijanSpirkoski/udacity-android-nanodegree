@@ -1,4 +1,4 @@
-package com.example.dough;
+package com.example.dough.ui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -6,11 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.PendingIntent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.dough.adapter.MonthlyAdapter;
+import com.example.dough.R;
 import com.example.dough.firebase.FirebaseConstants;
 import com.example.dough.model.ScheduledTransaction;
 import com.example.dough.model.Type;
@@ -23,7 +24,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MonthlyActivity extends AppCompatActivity {

@@ -53,4 +53,8 @@ public class Transaction {
     public void setType(Type type) {
         this.type = type;
     }
+
+    public String getuId() {
+        return uId;
+    }
 }

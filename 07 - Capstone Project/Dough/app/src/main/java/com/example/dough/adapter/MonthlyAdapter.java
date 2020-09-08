@@ -1,7 +1,8 @@
-package com.example.dough;
+package com.example.dough.adapter;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputType;
@@ -18,15 +19,15 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dough.R;
 import com.example.dough.firebase.FirebaseConstants;
 import com.example.dough.model.Date;
 import com.example.dough.model.ScheduledTransaction;
+import com.example.dough.ui.DatePickerFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyViewHolder>
                                 implements DatePickerDialog.OnDateSetListener {
@@ -85,6 +86,7 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                 .child(subscriptionKeys.get(position))
                                 .removeValue();
+                        cancelJob(scheduledTransaction);
                         subscriptionKeys.remove(position);
                         scheduledTransactions.remove(position);
                         notifyDataSetChanged();
@@ -137,6 +139,12 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
                 builder.create().show();
             }
         });
+    }
+
+    private void cancelJob(ScheduledTransaction scheduledTransaction) {
+        JobScheduler scheduler = (JobScheduler)
+                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        scheduler.cancel(scheduledTransaction.getTag());
     }
 
     @Override

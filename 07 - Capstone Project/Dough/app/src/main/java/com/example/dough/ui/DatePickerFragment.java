@@ -1,4 +1,4 @@
-package com.example.dough;
+package com.example.dough.ui;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
