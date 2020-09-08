@@ -33,4 +33,49 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
 
+    <string name="widget_content_desc">Dollar sign which adds a new transaction</string>
+    <string name="edit_date_desc">Edit subscription date</string>
+    <string name="remove_desc">Remove subscription</string>
+
+    <string name="two_decimal">%1.2f</string>
+    <string name="minus_sign">-</string>
+
+    <string name="fragment_tag">date picker</string>
+    <string name="remove_subs">Remove Subscription</string>
+    <string name="dialog_question">Are you sure?</string>
+    <string name="positive_answ">Yes</string>
+    <string name="negative_answ">No</string>
+    <string name="question_change">Change subscription amount?</string>
+    <string name="positive_buttn">Update</string>
+    <string name="negative_buttn">Cancel</string>
+    
+    <string name="TRANS_SERIALIZED_KEY">key</string>
+    
+    <string name="INCOME_SET_KEY">Incomes</string>
+    <string name="EXPENSE_SET_KEY">Expenses</string>
+
+    <string name="default_balance">0.0</string>
+
+    <string name="signed_in_msg">Signed in</string>
+    <string name="all_required">All fields required</string>
+    <string name="added">Added</string>
+    <string name="scheduled">Scheduled</string>
+
+    <string name="USERS_KEY">users</string>
+    <string name="TRANSACTIONS_KEY">transactions</string>
+    <string name="SCHEDULED_KEY">scheduled</string>
+    <string name="CATEGORIES_KEY">categories</string>
+    
+    <string-array name="default_categories">
+        <item>Food</item>
+        <item>Entertainment</item>
+        <item>Bills</item>
+        <item>Transportation</item>
+        <item>Clothing</item>
+        <item>Insurance</item>
+        <item>Necessity</item>
+        <item>Education</item>
+        <item>Travel</item>
+    </string-array>
+    
 </resources>

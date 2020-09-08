@@ -1,5 +1,6 @@
 package com.example.dough.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import com.example.dough.R;
 import com.example.dough.model.Date;
 import com.example.dough.model.SingleTransaction;
 import com.example.dough.model.Transaction;
+import com.example.dough.model.Type;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -20,9 +22,11 @@ import java.util.GregorianCalendar;
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
 
     ArrayList<SingleTransaction> singleTransactions;
+    Context context;
 
-    public TransactionAdapter() {
+    public TransactionAdapter(Context context) {
         this.singleTransactions = new ArrayList<>();
+        this.context = context;
     }
 
     @NonNull
@@ -35,8 +39,9 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         SingleTransaction transaction = singleTransactions.get(position);
-
-        holder.amountTextView.setText(String.valueOf(Math.round(transaction.getAmount()*100)/100));
+        String value = String.format(context.getResources().getString(R.string.two_decimal), transaction.getAmount());
+        holder.amountTextView.setText((transaction.getType() == Type.EXPENSE
+                ? context.getResources().getString(R.string.minus_sign) : "") + value);
 
         Date date = transaction.getDate();
         GregorianCalendar calendar = new GregorianCalendar(date.getYear(), date.getMonth(), date.getDayOfMonth());

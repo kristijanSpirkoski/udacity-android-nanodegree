@@ -8,14 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.dough.R;
 import com.example.dough.adapter.TransactionAdapter;
-import com.example.dough.firebase.FirebaseConstants;
 import com.example.dough.model.SingleTransaction;
 import com.example.dough.model.Type;
 import com.firebase.ui.auth.AuthUI;
@@ -46,8 +45,6 @@ import com.example.dough.model.User;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final static String INCOME_SET_KEY = "Incomes";
-    public final static String EXPENSE_SET_KEY = "Expenses";
 
     private ArrayList<String> mCategories;
 
@@ -72,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton fab;
 
+    private TextView balanceView;
+
 
 
     @Override
@@ -79,9 +78,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.balanceView = findViewById(R.id.balance_amount);
+
         recyclerView = findViewById(R.id.transaction_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        mAdapter = new TransactionAdapter();
+        mAdapter = new TransactionAdapter(this);
 
 
         recyclerView.setLayoutManager(layoutManager);
@@ -89,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
         fab = findViewById(R.id.fab);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        usersDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.USERS_KEY);
-        transactionsDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.TRANSACTIONS_KEY);
-        categoriesDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.CATEGORIES_KEY);
+        usersDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.USERS_KEY));
+        transactionsDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.TRANSACTIONS_KEY));
+        categoriesDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.CATEGORIES_KEY));
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                                             new AuthUI.IdpConfig.GoogleBuilder().build(),
                                             new AuthUI.IdpConfig.EmailBuilder().build()))
                                     .build(),
-                            FirebaseConstants.RC_SIGN_IN);
+                            1);
                 }
             }
         };
@@ -134,8 +135,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addDefaultCategories() {
+
         if(firebaseAuth.getCurrentUser() != null) {
-            for (String s : FirebaseConstants.defaultCategories) {
+            for (String s : getResources().getStringArray(R.array.default_categories)) {
                 categoriesDatabaseReference.child(firebaseAuth.getCurrentUser().getUid())
                         .push().setValue(s);
             }
@@ -165,8 +167,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        if(requestCode == FirebaseConstants.RC_SIGN_IN && resultCode == RESULT_OK && firebaseUser != null) {
-            Log.i("FDBTAG", "added user");
+        if(requestCode == 1 && resultCode == RESULT_OK && firebaseUser != null) {
             User mUser = new User(firebaseUser.getUid(), firebaseUser.getDisplayName(), firebaseUser.getEmail());
             usersDatabaseReference.child(firebaseUser.getUid()).setValue(mUser);
             new Thread(new Runnable() {
@@ -214,15 +215,18 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Entry> values2 = new ArrayList<>();
 
         // create a dataset and give it a type
-        mMonthlyExpenses = new ScatterDataSet(values1, EXPENSE_SET_KEY);
+        mMonthlyExpenses = new ScatterDataSet(values1, getResources().getString(R.string.EXPENSE_SET_KEY));
         mMonthlyExpenses.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
+        mMonthlyExpenses.setScatterShapeHoleColor(ColorTemplate.COLORFUL_COLORS[0]);
         mMonthlyExpenses.setColor(ColorTemplate.COLORFUL_COLORS[0]);
+        mMonthlyExpenses.setScatterShapeHoleRadius(8f);
 
-        mMonthlyIncomes = new ScatterDataSet(values2, INCOME_SET_KEY);
+
+        mMonthlyIncomes = new ScatterDataSet(values2, getResources().getString(R.string.INCOME_SET_KEY));
         mMonthlyIncomes.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
         mMonthlyIncomes.setScatterShapeHoleColor(ColorTemplate.COLORFUL_COLORS[3]);
-        mMonthlyIncomes.setScatterShapeHoleRadius(18f);
-        mMonthlyIncomes.setColor(ColorTemplate.COLORFUL_COLORS[1]);
+        mMonthlyIncomes.setScatterShapeHoleRadius(8f);
+        mMonthlyIncomes.setColor(ColorTemplate.COLORFUL_COLORS[3]);
 
         mMonthlyExpenses.setScatterShapeSize(40f);
         mMonthlyIncomes.setScatterShapeSize(40f);
@@ -238,10 +242,12 @@ public class MainActivity extends AppCompatActivity {
         scatterChart.invalidate();
     }
     public void onSignedInInitialize() {
+        resetBalance();
         attachEventListener();
         initializeScatterChart();
     }
     public void onSignOutCleanup() {
+        resetBalance();
         mAdapter.updateTransactions(new ArrayList<SingleTransaction>());
         mAdapter.notifyDataSetChanged();
         detachEventListener();
@@ -258,17 +264,21 @@ public class MainActivity extends AppCompatActivity {
                     } else if (newTransaction.getType() == Type.INCOME) {
                         mBalance += newTransaction.getAmount();
                     }
-                    Log.i("TRANSSSSSTAG", calendar.getTime().toString());
+                    balanceView.setText(String.valueOf(mBalance));
                     if (newTransaction.getDate().getYear() == calendar.get(Calendar.YEAR) &&
                             newTransaction.getDate().getMonth() == calendar.get(Calendar.MONTH)) {
-                        mMonthlyExpenses.addEntry(new Entry(newTransaction.getDate().getDayOfMonth(),
-                                (float) newTransaction.getAmount()));
+                        if( newTransaction.getType() == Type.EXPENSE) {
+                            mMonthlyExpenses.addEntry(new Entry(newTransaction.getDate().getDayOfMonth(),
+                                    (float) newTransaction.getAmount()));
+                        } else {
+                            mMonthlyIncomes.addEntry(new Entry(newTransaction.getDate().getDayOfMonth(),
+                                    (float) newTransaction.getAmount()));
+                        }
                         scatterChart.getScatterData().notifyDataChanged();
                         scatterChart.notifyDataSetChanged();
                         scatterChart.invalidate();
                     }
                     if( !mAdapter.containsTransaction(newTransaction) ) {
-                        Log.i("ADDTAG", "HERE");
                         mAdapter.addTransaction(newTransaction);
                     }
                 }
@@ -303,6 +313,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mAdapter.updateTransactions(new ArrayList<SingleTransaction>());
+        mAdapter.notifyDataSetChanged();
         firebaseAuth.addAuthStateListener(authStateListener);
+    }
+    private void resetBalance() {
+        this.mBalance = 0;
+        balanceView.setText(getResources().getString(R.string.default_balance));
     }
 }

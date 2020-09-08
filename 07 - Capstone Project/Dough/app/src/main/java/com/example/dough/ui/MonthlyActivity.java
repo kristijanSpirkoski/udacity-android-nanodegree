@@ -7,12 +7,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dough.adapter.MonthlyAdapter;
 import com.example.dough.R;
-import com.example.dough.firebase.FirebaseConstants;
 import com.example.dough.model.ScheduledTransaction;
 import com.example.dough.model.Type;
 import com.firebase.ui.auth.AuthUI;
@@ -47,7 +45,7 @@ public class MonthlyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_monthly);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        scheduledTransactionsDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.SCHEDULED_KEY);
+        scheduledTransactionsDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.SCHEDULED_KEY));
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -57,7 +55,6 @@ public class MonthlyActivity extends AppCompatActivity {
                 if( user != null) {
                     //user signed in
                     onSignedInInitialize();
-                    Log.i("ACTAG", "here");
 
                     Toast.makeText(MonthlyActivity.this, "Signed in", Toast.LENGTH_SHORT).show();
                 } else {
@@ -71,7 +68,7 @@ public class MonthlyActivity extends AppCompatActivity {
                                             new AuthUI.IdpConfig.GoogleBuilder().build(),
                                             new AuthUI.IdpConfig.EmailBuilder().build()))
                                     .build(),
-                            FirebaseConstants.RC_SIGN_IN);
+                            1);
                 }
             }
         };
@@ -99,7 +96,6 @@ public class MonthlyActivity extends AppCompatActivity {
                 public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                     ScheduledTransaction transaction = snapshot.getValue(ScheduledTransaction.class);
                     String pushId = snapshot.getKey();
-                    Log.i("SCHETAG", " am here");
                     if(transaction.getType() == Type.MONTHLYEXPENSE) {
                         expenseAdapter.addAndUpdate(pushId, transaction);
                     } else {

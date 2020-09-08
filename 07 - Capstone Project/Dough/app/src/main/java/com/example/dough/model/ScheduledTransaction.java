@@ -20,8 +20,14 @@ public class ScheduledTransaction extends Transaction{
 
     public SingleTransaction createSingleTransaction() {
         Date date = new Date();
+        Type type;
+        if(getType() == Type.MONTHLYEXPENSE) {
+            type = Type.EXPENSE;
+        } else {
+            type = Type.INCOME;
+        }
         SingleTransaction singleTransaction = new SingleTransaction(
-                getAmount(), date, getCategory(), getType(), getuId()
+                getAmount(), date, getCategory(), type, getuId()
         );
         return singleTransaction;
     }
@@ -29,7 +35,6 @@ public class ScheduledTransaction extends Transaction{
         Date date = getDate();
         String stringTag = "" + date.getMonth() + date.getDayOfMonth()
                 + date.getHour() + date.getMinute() + date.getSecond();
-        Log.i("TAGTAG", stringTag);
         return Integer.parseInt(stringTag);
     }
 }

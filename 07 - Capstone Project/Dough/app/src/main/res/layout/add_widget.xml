@@ -8,6 +8,7 @@
     android:padding="@dimen/widget_margin">
 
     <ImageView
+        android:contentDescription="@string/widget_content_desc"
         android:id="@+id/dollar_symbol"
         android:layout_gravity="center"
         android:foregroundGravity="center"

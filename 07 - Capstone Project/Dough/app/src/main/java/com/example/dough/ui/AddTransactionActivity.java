@@ -11,7 +11,6 @@ import android.animation.ValueAnimator;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dough.R;
-import com.example.dough.firebase.FirebaseConstants;
 import com.example.dough.job.TransactionScheduler;
 import com.example.dough.model.Date;
 import com.example.dough.model.ScheduledTransaction;
@@ -46,10 +44,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 
+
 public class AddTransactionActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
         DatePickerDialog.OnDateSetListener {
-
-    private static final String FRAGMENT_TAG_KEY = "fragment_tag";
 
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference categoriesDatabaseReference;
@@ -92,9 +89,9 @@ public class AddTransactionActivity extends AppCompatActivity implements Adapter
         categories = new ArrayList<>();
 
         firebaseDatabase= FirebaseDatabase.getInstance();
-        categoriesDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.CATEGORIES_KEY);
-        transactionsDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.TRANSACTIONS_KEY);
-        scheduledTransactionsDatabaseReference = firebaseDatabase.getReference().child(FirebaseConstants.SCHEDULED_KEY);
+        categoriesDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.CATEGORIES_KEY));
+        transactionsDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.TRANSACTIONS_KEY));
+        scheduledTransactionsDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.SCHEDULED_KEY));
 
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -105,19 +102,20 @@ public class AddTransactionActivity extends AppCompatActivity implements Adapter
                 if( user != null) {
                     //user signed in
                     onSignedInInitialize();
-                    Toast.makeText(AddTransactionActivity.this, "Signed in", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddTransactionActivity.this, getResources().getString(R.string.signed_in_msg),
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     //user signed out
                     onSignOutCleanup();
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
+                                    .setIsSmartLockEnabled(true)
                                     .setAvailableProviders(Arrays.asList(
                                             new AuthUI.IdpConfig.GoogleBuilder().build(),
                                             new AuthUI.IdpConfig.EmailBuilder().build()))
                                     .build(),
-                            FirebaseConstants.RC_SIGN_IN);
+                            1);
                 }
             }
         };
@@ -246,16 +244,13 @@ public class AddTransactionActivity extends AppCompatActivity implements Adapter
         mDate.setMinute(calendar.get(Calendar.MINUTE));
         mDate.setSecond(calendar.get(Calendar.SECOND));
 
-        Log.i("DATETAG", mDate.toString());
-
-
         addButton = findViewById(R.id.add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(amountEditText.getText().toString().isEmpty()
                         || categorySpinnerAdapter.isEmpty()) {
-                    Toast.makeText(context, "All fields required", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, getResources().getString(R.string.all_required), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Transaction transaction;
@@ -267,7 +262,7 @@ public class AddTransactionActivity extends AppCompatActivity implements Adapter
                                 firebaseAuth.getCurrentUser().getUid());
                         transactionsDatabaseReference.child(firebaseAuth.getCurrentUser().getUid())
                                 .push().setValue(transaction);
-                        Toast.makeText(context, "Added", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getResources().getString(R.string.added), Toast.LENGTH_SHORT).show();
                         break;
                     case MONTHLYINCOME:
                     case MONTHLYEXPENSE:
@@ -280,7 +275,7 @@ public class AddTransactionActivity extends AppCompatActivity implements Adapter
                                 (ScheduledTransaction) transaction);
                         scheduler.scheduleTransaction(true);
 
-                        Toast.makeText(context, "Scheduled", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getResources().getString(R.string.scheduled), Toast.LENGTH_SHORT).show();
                         break;
                 }
                 finish();
@@ -294,7 +289,7 @@ public class AddTransactionActivity extends AppCompatActivity implements Adapter
             @Override
             public void onClick(View view) {
                 DialogFragment dialog = new DatePickerFragment((DatePickerDialog.OnDateSetListener) context, null);
-                dialog.show(getSupportFragmentManager(), "date picker");
+                dialog.show(getSupportFragmentManager(), getResources().getString(R.string.fragment_tag));
             }
         });
         amountEditText = findViewById(R.id.transaction_amount_edit_text);

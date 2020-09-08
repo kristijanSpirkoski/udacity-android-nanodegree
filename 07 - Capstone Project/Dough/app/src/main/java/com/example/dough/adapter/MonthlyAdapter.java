@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +21,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dough.R;
-import com.example.dough.firebase.FirebaseConstants;
+import com.example.dough.job.TransactionScheduler;
 import com.example.dough.model.Date;
 import com.example.dough.model.ScheduledTransaction;
 import com.example.dough.ui.DatePickerFragment;
@@ -38,6 +39,7 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
     private ArrayList<String> subscriptionKeys;
     private Context context;
     private FragmentManager fragmentManager;
+    private Resources resources;
 
     private MonthlyAdapter adapterContext;
 
@@ -47,6 +49,7 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
         this.fragmentManager = fragmentManager;
         this.scheduledTransactions = new ArrayList<>();
         this.subscriptionKeys = new ArrayList<>();
+        this.resources = context.getResources();
         adapterContext = this;
     }
 
@@ -67,7 +70,7 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
             public void onClick(View view) {
                 memSC = scheduledTransaction;
                 DialogFragment dialog = new DatePickerFragment(adapterContext, memSC);
-                dialog.show(fragmentManager, "date picker");
+                dialog.show(fragmentManager, resources.getString(R.string.fragment_tag));
             }
         });
         holder.removeView.setOnClickListener(new View.OnClickListener() {
@@ -75,14 +78,14 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
             public void onClick(View view) {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Remove subscription");
-                builder.setMessage("Are you sure?");
+                builder.setTitle(resources.getString(R.string.remove_subs));
+                builder.setMessage(resources.getString(R.string.dialog_question));
 
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(resources.getString(R.string.positive_answ), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         FirebaseDatabase.getInstance().getReference()
-                                .child(FirebaseConstants.SCHEDULED_KEY)
+                                .child(context.getString(R.string.SCHEDULED_KEY))
                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                 .child(subscriptionKeys.get(position))
                                 .removeValue();
@@ -93,7 +96,7 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
                         dialogInterface.dismiss();
                     }
                 });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(resources.getString(R.string.negative_answ), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
@@ -110,27 +113,27 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Change subscription amount");
+                builder.setTitle(resources.getString(R.string.question_change));
 
                 final EditText inputView = new EditText(context);
                 inputView.setText(mAmount);
                 inputView.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(inputView);
 
-                builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(resources.getString(R.string.positive_buttn), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         ScheduledTransaction transaction = scheduledTransactions.get(position);
                         transaction.setAmount(Double.parseDouble(inputView.getText().toString()));
                         FirebaseDatabase.getInstance().getReference()
-                                .child(FirebaseConstants.SCHEDULED_KEY)
+                                .child(context.getString(R.string.SCHEDULED_KEY))
                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                 .child(subscriptionKeys.get(position))
                                 .setValue(transaction);
                         dialogInterface.dismiss();
                     }
                 });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(resources.getString(R.string.negative_buttn), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
@@ -172,8 +175,12 @@ public class MonthlyAdapter extends RecyclerView.Adapter<MonthlyAdapter.MonthlyV
                     break;
                 }
             }
+            cancelJob(memSC);
+            TransactionScheduler scheduler = new TransactionScheduler(context,
+                    (ScheduledTransaction) memSC);
+            scheduler.scheduleTransaction(true);
             FirebaseDatabase.getInstance().getReference()
-                    .child(FirebaseConstants.SCHEDULED_KEY)
+                    .child(context.getString(R.string.SCHEDULED_KEY))
                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                     .child(subscriptionKeys.get(memSCIdx))
                     .setValue(memSC);
