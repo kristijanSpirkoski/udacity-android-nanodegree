@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dough.adapter.MonthlyAdapter;
@@ -38,12 +39,16 @@ public class MonthlyActivity extends AppCompatActivity {
     private MonthlyAdapter incomeAdapter;
     private MonthlyAdapter expenseAdapter;
 
+    private TextView userView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monthly);
 
+        userView = findViewById(R.id.monthly_username);
+        
         firebaseDatabase = FirebaseDatabase.getInstance();
         scheduledTransactionsDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.SCHEDULED_KEY));
 
@@ -125,9 +130,15 @@ public class MonthlyActivity extends AppCompatActivity {
         }
     }
     private void onSignedInInitialize() {
+        String name = firebaseAuth.getCurrentUser().getDisplayName();
+        if( name != null ){
+            String display = getString(R.string.username) + " " + name;
+            userView.setText(display);
+        }
         attachEventListener();
     }
     private void onSignOutCleanup() {
+        userView.setText("");
         incomeAdapter.clear();
         expenseAdapter.clear();
         detachEventListener();

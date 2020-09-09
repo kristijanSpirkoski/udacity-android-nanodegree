@@ -1,35 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="24dp"
-    android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
     tools:context=".ui.MonthlyActivity">
-    <TextView
-        android:id="@+id/monthly_expense_label"
-        android:text="@string/monthly_expenses_label"
-        style="@style/TextAppearance.AppCompat.Large"
-        android:textStyle="italic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_monthly_expense"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/monthly_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <TextView
-        android:id="@+id/monthly_income_label"
-        android:text="@string/monthly_incomes_label"
-        style="@style/TextAppearance.AppCompat.Large"
-        android:textStyle="italic"
-        android:layout_marginTop="12dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_monthly_income"
+        android:layout_height="50dp"
+        android:background="@color/dirty_white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:id="@+id/monthly_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Username: George Washington"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            />
+    </androidx.appcompat.widget.Toolbar>
+    <LinearLayout android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        <TextView
+            android:id="@+id/monthly_expense_label"
+            android:text="@string/monthly_expenses_label"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="italic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_monthly_expense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/monthly_income_label"
+            android:text="@string/monthly_incomes_label"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="italic"
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_monthly_income"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 </LinearLayout>

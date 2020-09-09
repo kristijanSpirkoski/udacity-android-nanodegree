@@ -1,10 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:layout_gravity="center"
     android:gravity="center"
+    android:orientation="vertical"
     android:padding="@dimen/widget_margin">
 
     <ImageView
@@ -15,5 +17,19 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:src="@drawable/ic_baseline_attach_money_24"/>
+    <TextView
+        android:id="@+id/widget_balance_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/balance_label"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="@color/white"/>
+    <TextView
+        android:id="@+id/widget_balance_amount"
+        tools:text="2509"
+        style="@style/TextAppearance.AppCompat.Display1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"/>
 
 </LinearLayout>

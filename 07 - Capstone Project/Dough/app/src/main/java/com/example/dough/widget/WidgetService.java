@@ -5,9 +5,12 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+
+import com.example.dough.R;
 
 public class WidgetService extends IntentService {
 
@@ -34,8 +37,11 @@ public class WidgetService extends IntentService {
     }
 
     private void handleAction() {
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_preferences), MODE_PRIVATE);
+        double balance = sharedPreferences.getFloat(getString(R.string.balance_saved_key), (float) 0.0);
+
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         int[] widgetsIds = appWidgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), AddWidget.class));
-        AddWidget.updateWidgets(getApplicationContext(), appWidgetManager, widgetsIds);
+        AddWidget.updateWidgets(getApplicationContext(), appWidgetManager, widgetsIds, balance);
     }
 }

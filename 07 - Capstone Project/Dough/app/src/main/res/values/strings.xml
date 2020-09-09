@@ -77,5 +77,12 @@
         <item>Education</item>
         <item>Travel</item>
     </string-array>
-    
+
+    <string name="category_hint">Specify new category of transaction</string>
+    <string name="amount_edit_hint">Specify amount</string>
+
+    <string name="shared_preferences">SHARED_PREFERENCES</string>
+    <string name="balance_saved_key">balance-key</string>
+
+    <string name="username">User:</string>
 </resources>

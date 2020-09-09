@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab;
 
     private TextView balanceView;
+    private TextView userView;
+
+    private SharedPreferences sharedPreferences;
 
 
 
@@ -79,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         this.balanceView = findViewById(R.id.balance_amount);
+        userView = findViewById(R.id.main_username);
 
         recyclerView = findViewById(R.id.transaction_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -88,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mAdapter);
         fab = findViewById(R.id.fab);
+        sharedPreferences = getSharedPreferences(getString(R.string.shared_preferences), MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat(getString(R.string.balance_saved_key), (float) 0.0);
+        editor.apply();
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         usersDatabaseReference = firebaseDatabase.getReference().child(getString(R.string.USERS_KEY));
@@ -243,11 +253,17 @@ public class MainActivity extends AppCompatActivity {
     }
     public void onSignedInInitialize() {
         resetBalance();
+        String name = firebaseAuth.getCurrentUser().getDisplayName();
+        if( name != null ){
+            String display = getString(R.string.username) + " " + name;
+            userView.setText(display);
+        }
         attachEventListener();
         initializeScatterChart();
     }
     public void onSignOutCleanup() {
         resetBalance();
+        userView.setText("");
         mAdapter.updateTransactions(new ArrayList<SingleTransaction>());
         mAdapter.notifyDataSetChanged();
         detachEventListener();
@@ -264,6 +280,9 @@ public class MainActivity extends AppCompatActivity {
                     } else if (newTransaction.getType() == Type.INCOME) {
                         mBalance += newTransaction.getAmount();
                     }
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putFloat(getString(R.string.balance_saved_key), (float) mBalance);
+                    editor.apply();
                     balanceView.setText(String.valueOf(mBalance));
                     if (newTransaction.getDate().getYear() == calendar.get(Calendar.YEAR) &&
                             newTransaction.getDate().getMonth() == calendar.get(Calendar.MONTH)) {

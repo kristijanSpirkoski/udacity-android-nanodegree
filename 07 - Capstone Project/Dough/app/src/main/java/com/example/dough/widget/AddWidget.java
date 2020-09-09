@@ -16,20 +16,21 @@ import com.example.dough.ui.AddTransactionActivity;
 public class AddWidget extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
+                                int appWidgetId, double balance) {
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.add_widget);
 
         Intent intent = new Intent(context, AddTransactionActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         views.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
+        views.setTextViewText(R.id.widget_balance_amount, String.valueOf(balance));
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
     public static void updateWidgets(Context context, AppWidgetManager appWidgetManager,
-                                     int[] appWidgetId) {
+                                     int[] appWidgetId, double balance) {
         for(int i : appWidgetId) {
-            updateAppWidget(context, appWidgetManager, i);
+            updateAppWidget(context, appWidgetManager, i, balance);
         }
     }
 
